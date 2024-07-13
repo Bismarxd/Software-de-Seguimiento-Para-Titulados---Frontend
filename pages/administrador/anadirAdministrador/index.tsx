@@ -4,7 +4,6 @@ import Dashboard from '@/components/Administrador/Dashboard'
 import NavBar from '@/components/Administrador/NavBar'
 import DatosAdmin from '@/components/Administrador/gestionUsuarios/anadirAdministrador/Pasos/DatosAdmin';
 import DatosBasicosAdmin from '@/components/Administrador/gestionUsuarios/anadirAdministrador/Pasos/DatosBasicosAdmin';
-import DatosCargo from '@/components/Administrador/gestionUsuarios/anadirAdministrador/Pasos/DatosCargo';
 import BarraControl from '@/components/Administrador/gestionUsuarios/anadirTitulado/BarraControl'
 import Finalizar from '@/components/Administrador/gestionUsuarios/anadirTitulado/pasos/Finalizar';
 import React , {useState}from 'react'
@@ -35,21 +34,89 @@ const mostrarPasos = (paso: number) => {
     }
 }
 
-const index = () => {
+
+const Index = () => {
 
     const [alerta, setAlerta] = useState(false)
     const [alertaMensaje, setAlertaMensaje] = useState('')
+    const [emailError, setEmailError] = useState(false);
 
     const router = useRouter()
 
     const [pasoActual, setPasoActual] = useState(1)
-    const [datosBasicos, setDatosBasicos] = useState<any>('');
-    const [datosAdministrador, setDatosAdministrador] = useState<any>('');
+    const [datosBasicos, setDatosBasicos] = useState<any>({
+        nombre: '',
+        apellidoPaterno: '',
+        apellidoMaterno: '',
+        ci: '',
+        fechaNacimiento: '',
+        celular: '',
+        sexo: '',
+        direccion: '',
+        email: ''
+    });
+    const [datosAdministrador, setDatosAdministrador] = useState<any>({
+        tituloCargo: '',
+        tipoAdministrador: ''
+    });
+
+    const validateEmail = (email: string) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
+
+    const validateCI = (ci: string) => {
+        const ciPattern = /^\d+[a-zA-Z]+$/;
+        return ciPattern.test(datosBasicos.ci);
+      };
 
 
     const handleClick = (dirrection: string) => {
+        const camposVaciosDatosUsuarios = Object.entries(datosBasicos).filter(([key, value]) => value === "");
+        
+
+        //para controlar los errores de los datos basicos
+        if (camposVaciosDatosUsuarios.length > 0) {
+            setAlerta(true);
+            setAlertaMensaje(`Los siguientes campos son obligatorios: ${camposVaciosDatosUsuarios.map(([key]) => key).join(", ")}`);
+            setTimeout(() => {
+              setAlerta(false)
+            }, 5000)
+            return; // Detener la función si hay campos vacíos
+        }
+
+        if (!validateEmail(datosBasicos.email)) {
+            setEmailError(true);
+            setAlerta(true);
+            setAlertaMensaje('El correo electrónico no es válido');
+            setTimeout(() => {
+                setAlerta(false);
+                setEmailError(false);
+            }, 5000);
+            return;
+        }
+
+        if (!validateCI(datosBasicos.ci)) {
+            setAlerta(true);
+            setAlertaMensaje("El C.I. debe incluir una extensión, por ejemplo: 123456lp");
+            setTimeout(() => {
+            setAlerta(false);
+            }, 5000);
+            return; // Detener la función si el C.I. no es válido
+        }
+        
         //Insertar en la base de datos
         if (pasoActual === pasos.length -1) {
+            const camposVaciosDatosAdministrador = Object.entries(datosAdministrador).filter(([key, value]) => value === "");
+            //para controlar los errores de los datos del administrador
+        if (camposVaciosDatosAdministrador.length > 0) {
+            setAlerta(true);
+            setAlertaMensaje(`Los siguientes campos son obligatorios: ${camposVaciosDatosAdministrador.map(([key]) => key).join(", ")}`);
+            setTimeout(() => {
+            setAlerta(false)
+            }, 5000)
+            return; // Detener la función si hay campos vacíos
+        }
            axios.post(`${process.env.NEXT_PUBLIC_URL}/administradores/add_persona_administrador`, datosBasicos)
            .then(result => {
                 if (result.data.status) {
@@ -58,6 +125,7 @@ const index = () => {
                     axios.post(`${process.env.NEXT_PUBLIC_URL}/administradores/add_usuario_administrador`, {personaId})
                    .then(result => {
                         if(result.data.status) {
+                            
                             const usuarioId = result.data.id;
                             axios.post(`${process.env.NEXT_PUBLIC_URL}/administradores/add_cargo_administrador`, {...datosAdministrador, usuarioId})
                             .then(result => {
@@ -106,6 +174,13 @@ const index = () => {
                     {/* Componentes de visualisación */}
 
                     <div className='my-10 p-10'>
+                        {alerta && 
+                            <Stack sx={{ width: '100%' }} spacing={2}>
+                            <Alert variant="filled" severity="error">
+                                {alertaMensaje}
+                            </Alert>
+                            </Stack>
+                        }
                         <AdministradorContext.Provider
                             value={{
                                 datosBasicos,
@@ -137,4 +212,4 @@ const index = () => {
   )
 }
 
-export default index
+export default Index

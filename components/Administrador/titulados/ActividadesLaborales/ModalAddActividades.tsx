@@ -31,34 +31,34 @@ const ModalAddActividades = (props:Props) => {
     const [alertaMensaje, setAlertaMensaje] = useState('')
 
     const [estaTrabajando, setEstaTrabajando] = useState('');
-    const [estadosLaboral, setEstadosLaboral] = useState([])
 
-    const [datos, setDatos] = useState({})
+    const [datos, setDatos] = useState({
+        aIngresoTrabajo: '',
+        institucionTrabajo: '',
+        cargoOTareaTrabajo: '',
+        estaTrabajando: '',
+        duracionTrabajo: '',
+        aFinalisacionTrabajo: 0
+    })
 
-    console.log(datos)
 
     useEffect(() => {
-        //traer los estados laborales
-    axios.get('http://localhost:8000/titulado/obtener_estados_laboral')
-    .then(result => {
-    if (result.data.status) {
-        const estados = [ {value: "", label: ""}, ...result.data.result.map((item) => ({
-            value: item.id,
-            label: item.tituloEstado
-        }))]
-
-        setEstadosLaboral(estados)
-
         
-    }else {
-        alert(result.data.Error)
-    }
-    }).catch(err => console.log(err))
 
     },[])
 
-    const handleClick = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleClick: React.MouseEventHandler<HTMLButtonElement> | undefined= (e) => {
         e.preventDefault();
+        //Verificar si algún campo está vacío
+        
+        if (datos.institucionTrabajo === '' && datos.cargoOTareaTrabajo === '' && datos.estaTrabajando === '') {
+            setAlerta(true);
+            setAlertaMensaje('Hay Campos Vacios');
+            setTimeout(() => {
+                setAlerta(false)
+            }, 5000)
+            return; // Detener la función si hay campos vacíos
+        }
 
         axios.post(`${process.env.NEXT_PUBLIC_URL}/titulado/add_actividad_laboral`, {...datos, 'tituladoId':props.id})
             .then(result => {
@@ -110,13 +110,13 @@ const ModalAddActividades = (props:Props) => {
                   
                     <Input 
                         crossOrigin={'anonimus'}
-                        label="Cargo o Tarea"
+                        label="Cargo o Tarea Realizada"
                         onChange={e => setDatos({...datos, 'cargoOTareaTrabajo': e.target.value})}     
                         name='cargoOTareaTrabajo'
                     />
                     <Select
                         placeholder="Seleccione una opcion"
-                        onChange={value => setDatos({...datos, 'estaTrabajando': value})}  
+                        onChange={(value: any) => setDatos({...datos, 'estaTrabajando': value})}  
                         value={estaTrabajando}    
                         name='estaTrabajando'             
                     >
@@ -131,27 +131,19 @@ const ModalAddActividades = (props:Props) => {
                         <Input 
                         crossOrigin={'anonimus'}
                         label="Año de Finalisación"
-                        onChange={e => setDatos({...datos, 'aFinalisacionTrabajo': e.target.value})}     
+                        onChange={(e: any) => setDatos({...datos, 'aFinalisacionTrabajo': e.target.value})}     
                         name='aFinalisacionTrabajo'
                     />
                     }
 
-                    {datos.estaTrabajando === 'si' &&
-                         <Select
-                         placeholder="Estado Trabajo Actual"
-                         onChange={value => setDatos({...datos, 'estadoActividadLaboralId': value})}  
-                         name='estadoActividadLaboralId'             
-                        >
-                            {estadosLaboral.map(item => (
-                                <Option key={item.value} value={item.value}>
-                                    {item.label}
-                                </Option>
-                            ))}
-                        </Select>
-                    }
-
-                   
-
+                    <Input 
+                        crossOrigin={'anonimus'}
+                        label="Tiempo de Trabajo"
+                        onChange={e => setDatos({...datos, 'duracionTrabajo': e.target.value})}     
+                        name='duracionTrabajo'
+                        type='number'
+                    />
+                  
                  </div>
                  <button 
                 className='w-[100%] p-3 rounded bg-sky-600 text-white font-semibold cursor-pointer hover:bg-sky-400 uppercase m-4 text-lg'

@@ -4,12 +4,12 @@ import { Input,Select, Option, Typography } from "@material-tailwind/react";
 import Stack from '@mui/material/Stack';
 import axios from 'axios';
 import { toast } from 'react-toastify'
-import { useRouter } from 'next/router';
-import ProduccionesIntelectuales from '@/components/Registro/Pasos/ProduccionesIntelectuales';
+import { AnyNaptrRecord } from 'dns';
+
 
   type Props = {
-    setModalAdd: React.Dispatch<React.SetStateAction<boolean>>,
-    id: any
+    setModalAdd: React.Dispatch<React.SetStateAction<boolean>>;
+    id: any;
   }
 
   const ModalProduccionIntelectualAdd = (props: Props) => {
@@ -28,21 +28,29 @@ import ProduccionesIntelectuales from '@/components/Registro/Pasos/ProduccionesI
       label: ''
     }])
 
-    const [datos, setDatos] = useState({})
-    console.log(datos)
+    const [datos, setDatos] = useState({
+      aProduccion: '',
+      temaProduccion: '',
+      institucionProduccion: '',
+      publicacionId: '',
+      formaTrabajoProduccionId: ''
 
-    const handleSelectChangeTipo = (value: string) => {
-      setDatos({ ...datos, publicacionId: value });
+    })
+
+    const handleSelectChangeTipo = (value: any) => {
+      if (value !== undefined) {
+    setDatos({ ...datos, publicacionId: value });
+  }
     };
 
-    const handleSelectChangeForma = (value: string) => {
+    const handleSelectChangeForma = (value: any) => {
       setDatos({ ...datos, formaTrabajoProduccionId: value });
     };
   
     useEffect(() => {
 
       //traer las publicaciones
-      axios.get('http://localhost:8000/titulado/obtener_publicaciones')
+      axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/obtener_publicaciones`)
       .then(result => {
       if (result.data.status) {
           const datosPublicacion = [ {value: "", label: ""}, ...result.data.result.map((item: any) => ({
@@ -57,7 +65,7 @@ import ProduccionesIntelectuales from '@/components/Registro/Pasos/ProduccionesI
       }).catch(err => console.log(err))
 
       //traer las forma de trabajo
-      axios.get('http://localhost:8000/titulado/obtener_forma_trabajo')
+      axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/obtener_forma_trabajo`)
       .then(result => {
       if (result.data.status) {
           const datosFormaTrabajo = [ {value: "", label: ""}, ...result.data.result.map((item: any) => ({
@@ -74,19 +82,19 @@ import ProduccionesIntelectuales from '@/components/Registro/Pasos/ProduccionesI
     }, [])
 
 
-  const handleClick = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleClick: React.MouseEventHandler<HTMLButtonElement>  = (e) => {
     e.preventDefault();
      // Verificar si algún campo está vacío
-  // const camposVacios = Object.entries(datosEditados).filter(([key, value]) => value === "");
+    const camposVacios = Object.entries(datos).filter(([key, value]) => value === "");
 
-  // if (camposVacios.length > 0) {
-  //     setAlerta(true);
-  //     setAlertaMensaje(`Los siguientes campos están vacíos: ${camposVacios.map(([key]) => key).join(", ")}`);
-  //     setTimeout(() => {
-  //       setAlerta(false)
-  //     }, 5000)
-  //     return; // Detener la función si hay campos vacíos
-  // }
+    if (camposVacios.length > 0) {
+        setAlerta(true);
+        setAlertaMensaje(`Los siguientes campos están vacíos: ${camposVacios.map(([key]) => key).join(", ")}`);
+        setTimeout(() => {
+          setAlerta(false)
+        }, 5000)
+        return; // Detener la función si hay campos vacíos
+    }
     
 
     axios.post(`${process.env.NEXT_PUBLIC_URL}/titulado/add_produccion_intelectual`, {...datos, 'tituladoId':props.id})
@@ -151,7 +159,6 @@ import ProduccionesIntelectuales from '@/components/Registro/Pasos/ProduccionesI
                 <Typography placeholder>Tipo de Publicación</Typography>
                 <Select 
                   placeholder 
-
                   onChange={handleSelectChangeTipo}
                   name="publicacionId"  
                 >

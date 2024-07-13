@@ -6,8 +6,13 @@ import {
     IconButton,
   } from "@material-tailwind/react";
 
-const ModalVerINvestigacion = ({ closeDrawer, investigacion, modalVer}) => {
-console.log(investigacion)
+type Props = {
+  closeDrawer: any;
+  investigacion: any;
+  modalVer: any;
+}
+
+const ModalVerINvestigacion = ({ closeDrawer, investigacion, modalVer}: Props) => {
   return (
     <Drawer placeholder open={modalVer} onClose={closeDrawer} className="p-4" placement="top">
         <div className="mb-6 flex items-center justify-between">

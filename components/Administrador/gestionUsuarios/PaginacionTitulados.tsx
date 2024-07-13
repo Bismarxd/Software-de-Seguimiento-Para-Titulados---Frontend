@@ -16,7 +16,7 @@ const PaginacionTitulados = (props: Props) => {
     const router = useRouter()
 
     //para traer los titulados
-    const handleVerDetalles = (id: number) => {
+    const handleVerDetalles = (id: any) => {
         router.push(`/administrador/verTitulado/${id}`)
     }
 
@@ -49,7 +49,7 @@ const PaginacionTitulados = (props: Props) => {
   return (
     <div className='m-5'>
         <DataGrid
-        className='bg-white'
+        className='bg-slate-500'
              sx={{
                 '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
                  

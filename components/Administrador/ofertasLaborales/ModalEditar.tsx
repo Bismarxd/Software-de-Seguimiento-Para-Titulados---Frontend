@@ -8,7 +8,8 @@ import axios from 'axios'
 
 type Props = {
     setAbrirModal: React.Dispatch<React.SetStateAction<boolean>>,
-    id: number
+    id: number,
+    adminId: number
 }
 
 const ModalEditar = (props: Props) => {
@@ -25,12 +26,11 @@ const ModalEditar = (props: Props) => {
         salario: "",
         fechaVencimiento: "",
         descripcion: "",
-        estado: 1
-       
+        estado: 1,
     })
 
     useEffect(() => {
-        axios.get('http://localhost:8000/ofertas/obtener_oferta/'+id)
+        axios.get(`${process.env.NEXT_PUBLIC_URL}/ofertas/obtener_oferta/`+id)
         .then(result => {
            setOfertasLaborales({
             ...ofertasLaborales,
@@ -47,7 +47,7 @@ const ModalEditar = (props: Props) => {
 
         }).catch(err => console.log(err))
     }, [])
-    console.log(ofertasLaborales);
+
     
 
     const handleChange = (e: any) => {
@@ -69,7 +69,10 @@ const ModalEditar = (props: Props) => {
           }, 5000)
           return; // Detener la función si hay campos vacíos
       }
-        axios.put(`${process.env.NEXT_PUBLIC_URL}/ofertas/editar_oferta/`+id, ofertasLaborales)
+        axios.put(`${process.env.NEXT_PUBLIC_URL}/ofertas/editar_oferta/`+id, {
+          adminId: props.adminId, // Incluye adminId en el cuerpo de la solicitud
+          ...ofertasLaborales   // Desestructura el objeto administrador para incluir sus propiedades
+      })
         .then(result => {
             if (result.data.status) {
               
@@ -87,7 +90,7 @@ const ModalEditar = (props: Props) => {
 
   return (
     <div className='w-[100%] h-[100%] absolute top-0 left-0 bg-[#00000080] flex items-center justify-center z-50'>
-      <div className='p-8 rounded-2xl bg-slate-200 relative'>
+      <div className='p-8 rounded-2xl bg-white relative'>
         <span
           className='absolute top-3 right-3 cursor-pointer text-stone-900 text-3xl'
           onClick={() => props.setAbrirModal(false)}
@@ -107,6 +110,7 @@ const ModalEditar = (props: Props) => {
         }
             <div className='grid grid-cols-3 gap-x-20 gap-y-3'>
                     <Input
+                        placeholder=''
                         titulo='Titulo'
                         onChange={handleChange}
                         value={ofertasLaborales['titulo']}
@@ -115,6 +119,7 @@ const ModalEditar = (props: Props) => {
                     />
                     <Input 
                         titulo='Empresa'
+                        placeholder=''
                         value={ofertasLaborales['empresa']}
                         type='text'
                         name='empresa'
@@ -122,6 +127,7 @@ const ModalEditar = (props: Props) => {
                     />  
                     <Input 
                         titulo='Ubicación'
+                        placeholder=''
                         value={ofertasLaborales['ubicacion']}
                         type='text'
                         name='ubicacion'
@@ -129,6 +135,7 @@ const ModalEditar = (props: Props) => {
                     />  
                     <Input 
                         titulo='Teléfono o Celular'
+                        placeholder=''
                         value={ofertasLaborales['telefono']}
                         type='number'
                         name='telefono'
@@ -136,6 +143,7 @@ const ModalEditar = (props: Props) => {
                     />  
                     <Input 
                         titulo='Salario'
+                        placeholder=''
                         value={ofertasLaborales['salario']}
                         type='number'
                         name='salario'
@@ -143,6 +151,7 @@ const ModalEditar = (props: Props) => {
                     />  
                     <Input 
                         titulo='Fecha de Vencimiento'
+                        placeholder=''
                         value={ofertasLaborales['fechaVencimiento']}
                         type='date'
                         name='fechaVencimiento'
@@ -150,6 +159,7 @@ const ModalEditar = (props: Props) => {
                     />  
                     <Input 
                         titulo='Descripción'
+                        placeholder=''
                         value={ofertasLaborales['descripcion']}
                         type='text'
                         name='descripcion'
@@ -158,7 +168,7 @@ const ModalEditar = (props: Props) => {
             </div>
         
             <button 
-                className='w-[100%] p-3 rounded bg-menuColor2 text-white font-semibold cursor-pointer hover:bg-menuColor1 uppercase m-4'
+                className='w-[100%] p-3 rounded bg-teal-900 text-white font-semibold cursor-pointer hover:bg-teal-700 uppercase m-4'
                 >
                 Aceptar
             </button>

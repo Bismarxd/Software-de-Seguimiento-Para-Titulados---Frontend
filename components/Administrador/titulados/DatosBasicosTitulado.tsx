@@ -3,10 +3,9 @@ import { Card, Typography } from "@material-tailwind/react";
 import { FaRegEdit } from 'react-icons/fa'
 import ModalEditarDatosBasicos from "./DatosBasicos/ModalEditarDatosBasicos";
 
-const DatosBasicosTitulado = ({datos} : any) => {
+const DatosBasicosTitulado = ({datos, administrador} : any) => {
 
     const [modalDatosBasicos, setModalDatosBasicos] = useState(false)
-    console.log(modalDatosBasicos)
 
     const handleEditar = () => {
         setModalDatosBasicos(true)
@@ -14,23 +13,30 @@ const DatosBasicosTitulado = ({datos} : any) => {
 
   return (
     <>
-      <Card className="h-full w-full z-0 ml-auto" placeholder >
+      <Card className="h-full w-full z-0 ml-auto" placeholder>
         <table className="w-full min-w-max table-auto text-left">
             <thead>
                 <tr>
                     <th className='flex justify-between'>
                         <Typography placeholder className='text-3xl font-bold opacity-85'>Datos Básicos</Typography>
-                        <div 
-                            className='hover:cursor-pointer'
-                            data-tooltip-id='my-tooltip'
-                            data-tooltip-content="Editar"
-                            onClick={() => handleEditar()}
-                        >
-                            <FaRegEdit 
-                                className='text-blue-600 text-xl m-4'
-                            />
-                
-                        </div>
+                        {
+                            administrador.tipoAdministrador!==1 ? (
+                                <div 
+                                className='hover:cursor-pointer'
+                                data-tooltip-id='my-tooltip'
+                                data-tooltip-content="Editar"
+                                onClick={() => handleEditar()}
+                                >
+                                    <FaRegEdit 
+                                        className='text-blue-600 text-xl m-4'
+                                    />
+                    
+                                </div>
+
+                            ) : null
+                           
+                        }
+                        
                     </th>
                 </tr>
             </thead>

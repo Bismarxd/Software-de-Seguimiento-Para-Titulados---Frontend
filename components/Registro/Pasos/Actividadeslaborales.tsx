@@ -35,7 +35,7 @@ const ActividadesLaborales = () => {
   const [alerta, setAlerta] = useState(false)
   const [alertaMensaje, setAlertaMensaje] = useState('')
 
-  const {actividadesLaborales, setActividadesLaborales} = useContext(RegistroContext)
+  const {actividadesLaborales, setActividadesLaborales} = useContext<any>(RegistroContext)
   const [tabla, setTabla] = useState(false)
   
   const [estadosLaboral, setEstadosLaboral] = useState([])
@@ -51,35 +51,15 @@ const ActividadesLaborales = () => {
   const [nombreEstado, setNombreEstado] = useState('');
 
 
-
-    useEffect(() => {
-      //traer los estados laborales
-      axios.get('http://localhost:8000/titulado/obtener_estados_laboral')
-      .then(result => {
-      if (result.data.status) {
-          const estados = [ {value: "", label: ""}, ...result.data.result.map((item) => ({
-              value: item.id,
-              label: item.tituloEstado
-          }))]
-
-          setEstadosLaboral(estados)
-
-          
-      }else {
-          alert(result.data.Error)
-      }
-      }).catch(err => console.log(err))
-
-  }, [])
   
 
   // Función para manejar el envío del formulario
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     setTabla(true)
     
     // Comprobar que se hayan ingresado el nombre y el apellido
-    if (institucion.trim() !== '' && aIngreso.trim() !== '') {
+    if (institucion.trim() !== '' && cargoOTarea.trim() !== '' && estaTrabajando.trim() !== '') {
       // Generar un nuevo elemento con el nombre y el apellido
       const nuevoElemento = {
                               aIngresoTrabajo: aIngreso, 
@@ -105,14 +85,14 @@ const ActividadesLaborales = () => {
     {
       setAlerta(true)
       setTabla(false)
-      setAlertaMensaje('Institución u Empresa y Año de Ingreso es Obligatorio')
+      setAlertaMensaje('Algunos Campos son Obligatorios')
       setTimeout(() => {
         setAlerta(false)
       }, 5000)
     }
   };
 
-  const handleChange = async (e) => {
+  const handleChange = async (e: any) => {
     console.log(e.target);
     
     
@@ -133,7 +113,7 @@ const ActividadesLaborales = () => {
       setEstado(value)     
     }
     try {
-      const response = await axios.get(`http://localhost:8000/titulado/estado_laboral/${value}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/estado_laboral/${value}`);
       if (response.status === 200) {
         setNombreEstado(response.data.titulo);
       } else {
@@ -145,7 +125,7 @@ const ActividadesLaborales = () => {
   }
   
   
-  const handleEliminar = (index) => {
+  const handleEliminar = (index: any) => {
     const nuevaLista = [...actividadesLaborales];
     nuevaLista.splice(index, 1);
     setActividadesLaborales(nuevaLista);
@@ -161,11 +141,11 @@ const ActividadesLaborales = () => {
               </Alert>
             </Stack>
         }
-        <div className='grid grid-cols-3 gap-5'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
 
           <Input
             onChange={handleChange}
-            titulo='Institución u Empresa'
+            titulo='Institución u Empresa(*)'
             placeholder='Ej: Clínica Los Olivos'
             type='text'
             value={institucion}
@@ -173,6 +153,7 @@ const ActividadesLaborales = () => {
           />
 
           <Input
+            placeholder=''
             onChange={handleChange}
             titulo='Año de Ingreso'
             type='number'
@@ -182,8 +163,8 @@ const ActividadesLaborales = () => {
 
           <Input
             onChange={handleChange}
-
-            titulo='Cargo o Tarea'
+            placeholder=''
+            titulo='Cargo o Tarea Realizada(*)'
             type='text'
             value={cargoOTarea}
             name='cargoOTareaTrabajo'
@@ -191,7 +172,7 @@ const ActividadesLaborales = () => {
 
           <Select
             onChange={handleChange}
-            titulo='Esta Trabajando?'
+            titulo='Esta Trabajando?(*)'
             opciones={tipoEstudio}
             value={estaTrabajando}
             name='estaTrabajando'
@@ -200,29 +181,23 @@ const ActividadesLaborales = () => {
 
          {estaTrabajando === 'no' &&
              <Input
-             onChange={handleChange}
-             titulo='Año de Finalisación'
-             type='number'
-             value={aFinalisacion}
-             name='aFinalisacionTrabajo'
+                placeholder=''
+                onChange={handleChange}
+                titulo='Año de Finalisación(*)'
+                type='number'
+                value={aFinalisacion}
+                name='aFinalisacionTrabajo'
            />
          }
 
-          {estaTrabajando === 'si' &&
-             <Select
-             onChange={handleChange}
-             titulo='Estado'
-             opciones={estadosLaboral}
-             value={estado}
-             name='estadoActividadLaboralId'
-           />
-          }
+          
           
 
           <div className='flex gap-2 items-end'>
           <Input
+            placeholder=''
             onChange={handleChange}
-            titulo='Duracion'
+            titulo='Tiempo de Trabajo'
             type='number'
             value={duracion}
             name='duracionTrabajo'
@@ -252,7 +227,7 @@ const ActividadesLaborales = () => {
       </form>
        {/* Mostrar los elementos en tiempo real */}
        <ul>
-        <div className='mx-auto max-w-4xl text-xs'>
+        <div className='mx-auto max-w-4xl text-[8px] md:text-xs'>
          {tabla && 
            <Table>
            <TableHead>
@@ -263,13 +238,12 @@ const ActividadesLaborales = () => {
                <TableHeaderCell>Cargo <br/> o <br/> Área</TableHeaderCell>
                <TableHeaderCell>Duración</TableHeaderCell>
                <TableHeaderCell>Institución</TableHeaderCell>
-               <TableHeaderCell>Estado</TableHeaderCell>
              </TableRow>
            </TableHead>
            
 
            <TableBody className=''>
-             {actividadesLaborales.map((elemento, index) => (
+             {actividadesLaborales.map((elemento: any, index: any) => (
                    <TableRow key={index} className=''>
                        <TableCell>{elemento.aIngresoTrabajo}</TableCell>
                        <TableCell>{elemento.aFinalisacionTrabajo}</TableCell>
@@ -277,7 +251,7 @@ const ActividadesLaborales = () => {
                        <TableCell>{elemento.cargoOTareaTrabajo}</TableCell>
                        <TableCell>{elemento.duracionTrabajo}</TableCell>
                        <TableCell>{elemento.institucionTrabajo}</TableCell>
-                       <TableCell>{elemento.nombreEstadoLaboral}</TableCell>
+
                        <TableCell>
                        <Button className='p-2 px-6 bg-red-800 hover:bg-red-400 text-white m-4 rounded-lg w-[50%]' onClick={() => handleEliminar(index)}>Eliminar</Button>
                        </TableCell>

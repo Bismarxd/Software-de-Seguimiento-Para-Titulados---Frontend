@@ -4,6 +4,12 @@ import Input from '@/components/Diseño/Input'
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import {
+  Card,
+  Select,
+  Option,
+  Typography
+} from "@material-tailwind/react";
+import {
   Table,
   TableBody,
   TableCell,
@@ -22,10 +28,8 @@ const EstudiosPostGrado = () => {
   const [alerta, setAlerta] = useState(false)
   const [alertaMensaje, setAlertaMensaje] = useState('')
 
-  const {estudiosPostGrado, setEstudiosPostGrado} = useContext(PasoContext)
+  const {estudiosPostGrado, setEstudiosPostGrado} = useContext<any>(PasoContext)
   const [tabla, setTabla] = useState(false)
-  
-  console.log(estudiosPostGrado);
   
   
   // Estado para almacenar el nombre y apellido ingresados en el formulario
@@ -35,12 +39,12 @@ const EstudiosPostGrado = () => {
   const [gradoAcademico, setGradoAcademico] = useState('');
   const [aGraduacion, setAGraduacion] = useState('');
   const [modalidadGraduacion, setModalidadGraduacion] = useState('');
-  const [tituloTrabajo, setTituloTrabajo] = useState('');
-  const [archivo, setArchivo] = useState('');
+  const [tituloTrabajo, setTituloTrabajo] = useState<any>('');
+  const [archivo, setArchivo] = useState<any>('');
 
 
   // Función para manejar el envío del formulario
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     setTabla(true)
     
@@ -83,7 +87,7 @@ const EstudiosPostGrado = () => {
       }
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: any) => {
     const file = e.target.files[0];
     setArchivo(file); // Almacenar el archivo en el estado
   };
@@ -108,7 +112,7 @@ const EstudiosPostGrado = () => {
     }
   }
 
-  const handleEliminar = (index) => {
+  const handleEliminar = (index: any) => {
     const nuevaLista = [...estudiosPostGrado];
     nuevaLista.splice(index, 1);
     setEstudiosPostGrado(nuevaLista);
@@ -128,15 +132,15 @@ const EstudiosPostGrado = () => {
         <div className='grid grid-cols-3 gap-5'>
           <Input
             onChange={handleChange}
-            placeholder='Ej: Diplomado en Educación'
-            titulo='Titulo del Curso'
+            titulo='Titulo del Curso(*)'
             type='text'
+            placeholder='Ej: Diplomado en Educación'
             value={tituloCurso}
             name='tituloCursoPostGrado'
           />
           <Input
             onChange={handleChange}
-            titulo='Año de Inicio PostGrado'
+            titulo='Año de Inicio PostGrado(*)'
             placeholder='Ej: 2020'
             type='number'
             value={aInicio}
@@ -145,53 +149,67 @@ const EstudiosPostGrado = () => {
 
           <Input
             onChange={handleChange}
-            titulo='Año de Graduación'
+            titulo='Año de Graduación(*)'
             placeholder='Ej: 2022'
             type='number'
             value={aGraduacion}
             name='aGraduacionPostGrado'
           />
 
-          <Input
-            onChange={handleChange}
-            titulo='Tipo de Estudio'
-            placeholder='Ej: maestria, diplomado, especialización, etc'
-            type='text'
-            value={tipoEstudio}
-            name='tipoEstudioPostGrado'
-          />
+          <Select
+              placeholder
+              label="Tipo de Estudio(*)"
+              value={tipoEstudio}
+              onChange={(e: any) => setTipoEstudio(e)}
+              name="tipoEstudioPostGrado"
+          >
+              <Option value="maestria">Maestría</Option>
+              <Option value="diplomado">Diplomado</Option>
+              <Option value="especializacion">Especialización</Option>
+              <Option value="doctorado">Doctorado</Option>
+              <Option value="doctorado">Postdoctorado</Option>
+              <Option value="doctorado">Certificación Profesional</Option>
+              <Option value="doctorado">Otro</Option>
+          </Select>
 
-          <Input
-            onChange={handleChange}
-            titulo='Grado Academico'
-            type='text'
+          <Select
+            placeholder
+            label="Grado Academico"
             value={gradoAcademico}
-            placeholder='Ej: Maestría, Doctorado'
-            name='gradoAcademicoPostGrado'
-          />
-
+            onChange={(e: any) => setGradoAcademico(e)}
+            name="gradoAcademicoPostGrado"
+            // onChange={handleChange}
+            // titulo='Grado Academico'
+            // type='text'
+            // value={gradoAcademico}
+            // name='gradoAcademicoPostGrado'
+            // placeholder='Ej: Maestría, Doctorado'
+          >
+              <Option value="diplomado">Maestria</Option>
+              <Option value="especializacion">Doctorado</Option>
+          </Select>
          
 
           <Input
             onChange={handleChange}
-            titulo='Modalidad de Graduación'
-            placeholder='Ej: Tesis, Proyecto de grado, Examen, etc'
+            titulo='Modalidad de Graduación(*)'
             type='text'
             value={modalidadGraduacion}
             name='modalidadGraduacionPostGrado'
+            placeholder='Ej: Tesis, Proyecto de grado, Examen, etc'
           />
 
           <Input
             onChange={handleChange}
-            titulo='Titulo de Trabajo de Graduación'
-            placeholder='Ej: Análisis de Políticas Públicas'
+            titulo='Titulo de Trabajo de Graduación(*)'
             type='text'
             value={tituloTrabajo}
             name='tituloTrabajoPostGrado'
+            placeholder='Ej: Análisis de Políticas Públicas'
           />
         </div>
 
-        {/* titulo */}
+        {/* titulo
         <div className='w-[50%]'>
             <div className='font-bold h-6 mt-3 text-gray-500 text-xs leading-8 uppercase'>
                 {" "} Subir Titulo PostGrado
@@ -206,14 +224,14 @@ const EstudiosPostGrado = () => {
                     className='p-1 px-2 appearance-none outline-none w-full text-gray-600'
                 />
             </div>
-        </div>
+        </div> */}
       
         <div className='m-3'>
           
-          <button
-              className='p-2 m-3 bg-green-900 text-white rounded-2xl hover:bg-green-500'
-            >Agregar</button>
-          </div>
+        <button
+            className='p-2 m-3 bg-green-900 text-white rounded-2xl hover:bg-green-500'
+          >Agregar</button>
+        </div>
         
       </form>
        {/* Mostrar los elementos en tiempo real */}
@@ -235,7 +253,7 @@ const EstudiosPostGrado = () => {
             
 
             <TableBody className=''>
-              {estudiosPostGrado.map((elemento, index) => (
+              {estudiosPostGrado.map((elemento: any, index: any) => (
                     <TableRow key={index} className=''>
                         <TableCell>{elemento.aInicioPostGrado}</TableCell>
                         <TableCell>{elemento.tituloCursoPostGrado}</TableCell>

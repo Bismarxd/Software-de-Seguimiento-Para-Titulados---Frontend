@@ -15,7 +15,8 @@ interface PropsDatos {
     direccion: string,
     fechaNacimiento: string,
     celular: string,
-    sexo: string
+    sexo: string,
+    personaId: any
   }
 
 type Props = {
@@ -28,17 +29,23 @@ const ModalEditarDatosBasicos = ({setModalDatosBasicos, datos} : Props) => {
     const [alertaMensaje, setAlertaMensaje] = useState('')
 
     const [datosEditados, setDatosEditados] = useState(datos)
+    
 
     const handleSelectChange = (value: string) => {
         setDatosEditados({ ...datosEditados, sexo: value });
       };
 
-      console.log(datosEditados)
-
-    const handleClick = (e) => {
+    const handleClick = (e: any) => {
         e.preventDefault()
 
-        axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/editar_datos_basicos/${datosEditados.personaId}`, datosEditados)
+        const user = localStorage.getItem('userId');
+         // Agregar el usuario a los datos editados
+        const datosEditadosConUsuario = {
+            ...datosEditados,
+            adminId: user // Asegúrate de tener un identificador válido del usuario
+        };
+
+        axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/editar_datos_basicos/${datosEditados.personaId}`, datosEditadosConUsuario)
         .then(result => {
             if(result.data.status) {
                 setModalDatosBasicos(false)  
@@ -131,7 +138,7 @@ const ModalEditarDatosBasicos = ({setModalDatosBasicos, datos} : Props) => {
                 />
                 <Select 
                     placeholder className='w-[150px]'                                      
-                    onChange={(e) => handleSelectChange(e)}
+                    onChange={(e: any) => handleSelectChange(e)}
                 >
                         {genero.map(item => (
                             <Option key={item.id} value={item.value}>
@@ -139,6 +146,7 @@ const ModalEditarDatosBasicos = ({setModalDatosBasicos, datos} : Props) => {
                             </Option>
                         ))}
                 </Select>
+
             </div>
                 <button 
                     className='w-[100%] p-3 rounded bg-sky-600 text-white font-semibold cursor-pointer hover:bg-sky-400 uppercase m-4 text-lg'

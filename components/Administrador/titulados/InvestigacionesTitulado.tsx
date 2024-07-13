@@ -10,8 +10,21 @@ import axios from 'axios';
 import ModalEditarInvestigacion from './investigaciones/ModalEditarInvestigacion';
 import ModalAddInvestigacion from './investigaciones/ModalAddInvestigacion';
 import ModalVerINvestigacion from './investigaciones/ModalVerINvestigacion';
+import ProduccionesIntelectual from '../gestionUsuarios/anadirTitulado/pasos/ProduccionesIntelectual';
 
-const InvestigacionesTitulado = ({investigaciones}) => {
+type PropsInvestigaciones = {
+    aInvestigacion: string;
+    temaInvestigacion: string;
+    institucionInvestigacion: string;
+    tipoPublicacion: string;
+    investigacionId: number;
+};
+
+type PropsInves = {
+    investigaciones: PropsInvestigaciones[];
+};
+
+const InvestigacionesTitulado: React.FC<PropsInves> = ({ investigaciones}) => {
     const router = useRouter();
     const { url } = router.query;
 
@@ -39,7 +52,6 @@ const InvestigacionesTitulado = ({investigaciones}) => {
     }
 
     const handleDelete = (id :any) => {
-        console.log(id)
         Swal.fire({
             title: "Esta seguro?",
             text: "Esta acción es irreversible!",
@@ -50,7 +62,10 @@ const InvestigacionesTitulado = ({investigaciones}) => {
             confirmButtonText: "Si, eliminar!"
           }).then((result) => {
             if (result.isConfirmed) {
-                axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_investigacion/${id}`)
+                const userId = localStorage.getItem('userId');
+                axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_investigacion/${id}`,{
+                    data:{adminId:userId}
+                })
                 .then(result => {
                     if (result.data.status) {
                         toast.error('Estudio PostGrado Eliminado Correctamente', {                     

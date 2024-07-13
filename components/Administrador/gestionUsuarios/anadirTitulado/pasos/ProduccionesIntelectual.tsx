@@ -19,7 +19,7 @@ const ProduccionesIntelectual = () => {
   const [alerta, setAlerta] = useState(false)
   const [alertaMensaje, setAlertaMensaje] = useState('')
 
-  const {produccionesIntelectuales, setProduccionesIntelectuales} = useContext(PasoContext)
+  const {produccionesIntelectuales, setProduccionesIntelectuales} = useContext<any>(PasoContext)
   const [tabla, setTabla] = useState(false)
 
   const [publicacion, setPublicacion] = useState([])
@@ -37,10 +37,10 @@ const ProduccionesIntelectual = () => {
   useEffect(() => {
 
     //traer los grados academicos
-    axios.get('http://localhost:8000/titulado/obtener_publicaciones')
+    axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/obtener_publicaciones`)
     .then(result => {
     if (result.data.status) {
-        const datosPublicacion = [ {value: "", label: ""}, ...result.data.result.map((item) => ({
+        const datosPublicacion: any = [ {value: "", label: ""}, ...result.data.result.map((item: any) => ({
             value: item.id,
             label: item.tipoPublicacion
         }))]
@@ -52,10 +52,10 @@ const ProduccionesIntelectual = () => {
     }).catch(err => console.log(err))
 
     //traer las forma de trabajo
-    axios.get('http://localhost:8000/titulado/obtener_forma_trabajo')
+    axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/obtener_forma_trabajo`)
     .then(result => {
     if (result.data.status) {
-        const datosFormaTrabajo = [ {value: "", label: ""}, ...result.data.result.map((item) => ({
+        const datosFormaTrabajo: any = [ {value: "", label: ""}, ...result.data.result.map((item: any) => ({
             value: item.id,
             label: item.nombreFormaTrabajoProduccion
         }))]
@@ -69,12 +69,12 @@ const ProduccionesIntelectual = () => {
   }, [])
 
   // Función para manejar el envío del formulario
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     setTabla(true)
     
     // Comprobar que se hayan ingresado el nombre y el apellido
-    if (tema.trim() !== '' && aProduccion.trim() !== '' && institucion.trim() !== '' && publicacionId.trim() !== '' &&      formaTrabajoId !== '') {
+    if (tema.trim() !== '' && aProduccion.trim() !== '' && institucion.trim() !== '' && publicacionId.trim() !== '' &&  formaTrabajoId !== '') {
       // Generar un nuevo elemento con el nombre y el apellido
       const nuevoElemento = {
                               aProduccion: aProduccion, 
@@ -121,7 +121,7 @@ const ProduccionesIntelectual = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:8000/titulado/publicacion/${value}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/publicacion/${value}`);
       if (response.status === 200) {
         setNombrePublicacionId(response.data.titulo);
       } else {
@@ -132,7 +132,7 @@ const ProduccionesIntelectual = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:8000/titulado/formaTrabajo/${value}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/formaTrabajo/${value}`);
       if (response.status === 200) {
         setNombreFormaTrabajoId(response.data.titulo);
       } else {
@@ -162,24 +162,27 @@ const ProduccionesIntelectual = () => {
         }
         <div className='grid grid-cols-3 gap-5'>
           <Input
+          placeholder=''
               onChange={handleChange}
-              titulo='Año de la Producción Intelectual'
+              titulo='Año de la Producción Intelectual(*)'
               type='number'
               value={aProduccion}
               name='aProduccion'
           />
 
           <Input
+          placeholder=''
               onChange={handleChange}
-              titulo='Tema de Investigación'
+              titulo='Tema(*)'
               type='text'
               value={tema}
               name='temaProduccion'
           />
 
           <Input
+          placeholder=''
               onChange={handleChange}
-              titulo='Institución'
+              titulo='Institución(*)'
               type='text'
               value={institucion}
               name='institucionProduccion'
@@ -187,7 +190,7 @@ const ProduccionesIntelectual = () => {
 
           <Select
               onChange={handleChange}
-              titulo='Tipo de Publicación'
+              titulo='Tipo de Publicación(*)'
               opciones={publicacion}
               value={publicacionId}
               name='publicacionId'
@@ -195,7 +198,7 @@ const ProduccionesIntelectual = () => {
 
           <Select
             onChange={handleChange}
-            titulo='Forma de Trabajo'
+            titulo='Forma de Trabajo(*)'
             opciones={formaTrabajo}
             value={formaTrabajoId}
             name='formaTrabajoId'
@@ -228,7 +231,7 @@ const ProduccionesIntelectual = () => {
             
 
             <TableBody className=''>
-              {produccionesIntelectuales.map((elemento, index) => (
+              {produccionesIntelectuales.map((elemento: any, index: any) => (
                     <TableRow key={index} className=''>
                         <TableCell>{elemento.aProduccion}</TableCell>
                         <TableCell>{elemento.temaProduccion}</TableCell>

@@ -88,6 +88,7 @@ const ModalOfertas = (props: Props) => {
         }
             <div className='grid grid-cols-3 gap-x-20 gap-y-3'>
                     <Input
+                    placeholder=''
                         titulo='Titulo'
                         onChange={handleChange}
                         value={ofertasLaborales['titulo']}
@@ -95,6 +96,7 @@ const ModalOfertas = (props: Props) => {
                         name='titulo'                      
                     />
                     <Input 
+                    placeholder=''
                         titulo='Empresa'
                         value={ofertasLaborales['empresa']}
                         type='text'
@@ -102,6 +104,7 @@ const ModalOfertas = (props: Props) => {
                         onChange={handleChange}                      
                     />  
                     <Input 
+                    placeholder=''
                         titulo='Ubicación'
                         value={ofertasLaborales['ubicacion']}
                         type='text'
@@ -109,6 +112,7 @@ const ModalOfertas = (props: Props) => {
                         onChange={handleChange}                      
                     />  
                     <Input 
+                    placeholder=''
                         titulo='Teléfono o Celular'
                         value={ofertasLaborales['telefono']}
                         type='number'
@@ -116,6 +120,7 @@ const ModalOfertas = (props: Props) => {
                         onChange={handleChange}                      
                     />  
                     <Input 
+                    placeholder=''
                         titulo='Salario'
                         value={ofertasLaborales['salario']}
                         type='number'
@@ -123,6 +128,7 @@ const ModalOfertas = (props: Props) => {
                         onChange={handleChange}                    
                     />  
                     <Input 
+                    placeholder=''
                         titulo='Fecha de Vencimiento'
                         value={ofertasLaborales['fechaVencimiento']}
                         type='date'
@@ -130,6 +136,7 @@ const ModalOfertas = (props: Props) => {
                         onChange={handleChange}                      
                     />  
                     <Input 
+                    placeholder=''
                         titulo='Descripción'
                         value={ofertasLaborales['descripcion']}
                         type='text'

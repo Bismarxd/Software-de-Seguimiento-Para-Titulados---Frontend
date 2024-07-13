@@ -12,13 +12,13 @@ const UsuarioPerfil: React.FC<PropsUsuarioPerfil> = ({toggle, datosUsuario}) => 
     <div 
         className={`flex gap-5 items-center ${ 
             toggle 
-                ? "bg-none transition-all duration-300 delay-200" 
+                ? "bg-none transition-all duration-300 delay-200 " 
                 : "bg-indigo-500 rounded-xl p-2"}`}
     >
 
-      <div className='min-w-[3.5rem] h-[3.5rem]'>
+      <div className='md:min-w-[3.5rem] md:h-[3.5rem] hidden md:flex'>
         <Image
-            src={`http://localhost:8000/imagenes/` + (datosUsuario?.imagen || '')}
+            src={`${process.env.NEXT_PUBLIC_URL}/imagenes/` + (datosUsuario?.imagen || '')}
             width={50}
             height={50}
             alt=''

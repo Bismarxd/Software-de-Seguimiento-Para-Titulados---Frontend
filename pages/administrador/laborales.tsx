@@ -4,7 +4,6 @@ import React, {useState, useEffect} from 'react'
 import PaginacionOfertas from '@/components/Administrador/ofertasLaborales/PaginacionOfertas'
 import { GridColDef } from '@mui/x-data-grid'
 import axios from 'axios'
-import Boton2 from '@/components/Diseño/Boton2'
 import Boton3 from '@/components/Diseño/Boton3'
 import ModalOfertas from '@/components/Administrador/ofertasLaborales/ModalOfertas'
 import { ToastContainer } from "react-toastify"
@@ -57,7 +56,7 @@ const columnas: GridColDef[] = [
 ]
 
 
-const laborales = () => {
+const Laborales = () => {
 
   const [datosLaborales, setDatosLaborales] = useState([])
   const [abrirModal, setAbrirModal] = useState(false)
@@ -66,7 +65,8 @@ const laborales = () => {
     axios.get(`${process.env.NEXT_PUBLIC_URL}/ofertas/obtener_ofertas`)
       .then(result => {
         if (result.data.status) {
-          setDatosLaborales(result.data.result)
+          const ofertasFiltradas = result.data.result.filter((dato: any) => dato.activo === 1);
+          setDatosLaborales(ofertasFiltradas);
         }
       })
       .catch(err => console.log(err))
@@ -100,4 +100,4 @@ const laborales = () => {
   )
 }
 
-export default laborales
+export default Laborales

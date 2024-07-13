@@ -1,20 +1,20 @@
-import React, {useContext} from 'react'
+import React, { createContext, useContext, useState } from 'react';
 import { AdministradorContext } from '@/context/AministradorContext'
 import { log } from 'console'
 import Input from '@/components/Diseño/Input'
 import Select from '@/components/Diseño/Select'
 
-const opcionesSexo = [
+const tipoAdministrador = [
   {value:'', label: ""},
-  {value:'masculino', label: "Masculino"},
-  {value:'femenino', label: "Femenino"}
+  {value:0, label: "Administrador Principal"},
+  {value:1, label: "Administrador Normal"}
 ]
 
 interface Props {
   tituloCargo: string,
-  descripcionCargo: string,
   fechaFinal: string,
-
+  descripcionCargo: string,
+  tipoAdministrador: 0
 }
 
 interface PropsContext {
@@ -22,9 +22,10 @@ interface PropsContext {
   setDatosAdministrador: React.Dispatch<React.SetStateAction<Props>>
 }
 
+
 const DatosAdmin = () => {
 
-  const {datosAdministrador, setDatosAdministrador}: PropsContext = useContext(AdministradorContext)
+  const {datosAdministrador, setDatosAdministrador}: PropsContext = useContext<any>(AdministradorContext)
   
   const handleChange = (e: any) => {
     const {name, value} = e.target;
@@ -39,7 +40,8 @@ const DatosAdmin = () => {
       <div className='w-full flex-1'>
         {/* Nombre */}
                  
-          <Input 
+          <Input
+            placeholder='' 
             titulo='Titulo del Cargo'
             onChange={handleChange}
             type='text'
@@ -49,6 +51,7 @@ const DatosAdmin = () => {
 
        
           <Input
+          placeholder=''
           titulo='Descripcion Cargo'
           onChange={handleChange}
           value={datosAdministrador["descripcionCargo"] || ""}
@@ -56,16 +59,15 @@ const DatosAdmin = () => {
           name='descripcionCargo'
           />
 
-          <Input
-            titulo='Fecha Final'
-            onChange={handleChange}
-            value={datosAdministrador["fechaFinal"] || ""}
-            name='fechaFinal'
-            type='date'
-            
-          />
 
-              
+          <Select
+            titulo='Tipo de Administrador'
+            opciones={tipoAdministrador}
+            onChange={handleChange}
+            value={datosAdministrador["tipoAdministrador"] || ""}
+            name='tipoAdministrador'
+
+          />
            
           
         </div>

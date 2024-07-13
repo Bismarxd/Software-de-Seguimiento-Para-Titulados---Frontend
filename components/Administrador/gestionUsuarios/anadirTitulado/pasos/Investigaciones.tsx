@@ -19,7 +19,7 @@ const Investigaciones = () => {
   const [alerta, setAlerta] = useState(false)
   const [alertaMensaje, setAlertaMensaje] = useState('')
 
-  const {investigaciones, setInvestigaciones} = useContext(PasoContext)
+  const {investigaciones, setInvestigaciones} = useContext<any>(PasoContext)
   const [tabla, setTabla] = useState(false)
 
   const [publicacion, setPublicacion] = useState([])
@@ -33,11 +33,11 @@ const Investigaciones = () => {
 
     useEffect(() => {
       //traer los grados academicos
-      axios.get('http://localhost:8000/titulado/obtener_publicaciones')
+      axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/obtener_publicaciones`)
       
       .then(result => {
       if (result.data.status) {
-          const datosPublicacion = [ {value: "", label: ""}, ...result.data.result.map((item) => ({
+          const datosPublicacion: any = [ {value: "", label: ""}, ...result.data.result.map((item: any) => ({
               value: item.id,
               label: item.tipoPublicacion
           }))]
@@ -51,7 +51,7 @@ const Investigaciones = () => {
     }, [])
 
   // Función para manejar el envío del formulario
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     setTabla(true)
     // Comprobar que se hayan ingresado el nombre y el apellido
@@ -82,10 +82,8 @@ const Investigaciones = () => {
     }
   };
 
-  const handleChange = async (e) => {
-    console.log(e.target);
-    
-    
+  const handleChange = async (e: any) => {
+
     const { name, value } = e.target
     if (name === 'aInvestigacion') {
       setAInvestigacion(value)
@@ -97,7 +95,7 @@ const Investigaciones = () => {
       setPublicacionId(value)
     } 
     try {
-      const response = await axios.get(`http://localhost:8000/titulado/publicacion/${value}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/publicacion/${value}`);
       if (response.status === 200) {
         setNombrePublicacionId(response.data.titulo);
       } else {
@@ -108,7 +106,7 @@ const Investigaciones = () => {
     }
   }
 
-  const handleEliminar = (index) => {
+  const handleEliminar = (index: any) => {
     const nuevaLista = [...investigaciones];
     nuevaLista.splice(index, 1);
     setInvestigaciones(nuevaLista);
@@ -126,29 +124,32 @@ const Investigaciones = () => {
         }
         <div className='grid grid-cols-3 gap-5'>
           <Input
+            placeholder=''
             onChange={handleChange}
-            titulo='Año de Investigación'
+            titulo='Año de Investigación(*)'
             type='number'
             value={aInvestigacion}
             name='aInvestigacion'
           />
           <Input
+          placeholder=''
             onChange={handleChange}
-            titulo='Tema de Investigación'
+            titulo='Tema de Investigación(*)'
             type='text'
             value={tema}
             name='temaInvestigacion'
           />
           <Input
+          placeholder=''
             onChange={handleChange}
-            titulo='Institución'
+            titulo='Institución(*)'
             type='text'
             value={institucion}
             name='institucionInvestigacion'
           />
           <Select
             onChange={handleChange}
-            titulo='Tipo de Publicación'
+            titulo='Tipo de Publicación(*)'
             opciones={publicacion}
             value={publicacionId}
             name='publicacionId'
@@ -177,7 +178,7 @@ const Investigaciones = () => {
            
 
            <TableBody className=''>
-             {investigaciones.map((elemento, index) => (
+             {investigaciones.map((elemento: any, index: any) => (
                    <TableRow key={index} className=''>
                        <TableCell>{elemento.aInvestigacion}</TableCell>
                        <TableCell>{elemento.temaInvestigacion}</TableCell>

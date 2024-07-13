@@ -8,7 +8,7 @@ import axios from 'axios';
 import { List, ListItem, Card,  CardHeader,
     CardBody,
     CardFooter,
-    Typography,ButtonGroup, Button, Collapse, Chip, ListItemSuffix
+    Typography
      } from "@material-tailwind/react";
 import ModalProduccionIntelectualEditar from '@/components/Administrador/titulados/ProduccionesIntelectuales/ModalProduccionIntelectualEditar';
 import ModalVer from '@/components/Administrador/titulados/ProduccionesIntelectuales/ModalVer';
@@ -21,17 +21,19 @@ type PropsProduccionIntelectual = {
     publicacionId: "",
     formaTrabajoProduccionId: "",
     tituladoId: "",
+    tipoPublicacion: "",
+    nombreFormaTrabajoProduccion: "",
+    produccionId: ""
 }
 
 type Props = {
-    produccionesIntelectuales: [],
+    produccionesIntelectuales: PropsProduccionIntelectual[],
 
 }
 
 const columnas = ["Año de la Producción", "Tema", "Institución", "Tipo de Publicación", "Forma de Trabajo", "Acciones"];
 
-const CardProducciones = ({produccionesIntelectuales}: PropsProduccionIntelectual) => {
-    console.log(produccionesIntelectuales)
+const CardProducciones = ({produccionesIntelectuales}: Props) => {
     const [modalEditar, setModalEditar] = useState(false)
     const [modalVer, setModalVer] = useState(false)
     const openDrawer = () => setModalVer(true);
@@ -61,7 +63,10 @@ const CardProducciones = ({produccionesIntelectuales}: PropsProduccionIntelectua
         confirmButtonText: "Si, eliminar!"
       }).then((result) => {
         if (result.isConfirmed) {
-            axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_produccion/${id}`)
+          const userId = localStorage.getItem('userId');
+            axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_produccion/${id}`,{
+              data:{adminId:userId}
+          })
             .then(result => {
                 if (result.data.status) {
                     toast.error('Produccion Intelectual Eliminado Correctamente', {                     

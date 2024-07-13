@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import {
     Card,
     Input,
@@ -18,20 +18,28 @@ import axios from 'axios';
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css";
 
-const index = () => {
+const Index = () => {
 
     const [alerta, setAlerta] = useState(false)
     const [alertaMensaje, setAlertaMensaje] = useState('')
     const [placeholderVisible, setPlaceholderVisible] = useState(false);
 
     const router = useRouter();
-    const { email, id } = router.query;
+    const { email, userId } = router.query;
     const [datosTitulado, setDatosTitulado] = useState({
         nombreUsuario: '',
         password: '',
         repeatPassword: ''
        
     })
+
+    useEffect(() => {
+        if (router.isReady) {
+            if (!email || !userId) {
+                router.push('/pagina404'); // Redirige a una página de error si falta email o userId
+            }
+        }
+    }, [router.isReady, email, userId, router]);
 
 
     const handleClick =  () => {
@@ -62,25 +70,25 @@ const index = () => {
             password: datosTitulado.password,
             email: router.query.email,
             id: router.query.userId
-        })
-        .then(result => {
-            if(result.data.status)
-                {
-                    
-                    const userId = result.data.id; // Obtiene el ID del usuario agregado
-                    toast.success('Cuenta Creada Exitosamente', {
-                        autoClose: 2000,
-                        onClose: () => router.push(`/registro/datosAdicionales?id=${userId}`)
-                      })  
-                }
-                else {
-                    setAlerta(true)
-                    setAlertaMensaje(result.data.Error)
-                    setTimeout(() => {
-                        setAlerta(false)
-                    }, 3000);
-                }
-        }).catch(err=>console.log(err))
+            })
+            .then(result => {
+                if(result.data.status)
+                    {
+                        
+                        const userId = result.data.id; // Obtiene el ID del usuario agregado
+                        toast.success('Cuenta Creada Exitosamente', {
+                            autoClose: 2000,
+                            onClose: () => router.push(`/registro/datosAdicionales?id=${userId}`)
+                        })  
+                    }
+                    else {
+                        setAlerta(true)
+                        setAlertaMensaje(result.data.Error)
+                        setTimeout(() => {
+                            setAlerta(false)
+                        }, 3000);
+                    }
+            }).catch(err=>console.log(err))
 
         //router.push('/registro/datosAdicionales')
         
@@ -112,7 +120,7 @@ const index = () => {
                     }
                         <div className="mb-1 flex flex-col gap-6 w-full">
                             <div 
-                                className="relative flex flex-col text-gray-700 bg-white shadow-md w-96 rounded-xl bg-clip-border"
+                                className="relative flex flex-col text-gray-700 bg-white shadow-md w-64 md:w-96 rounded-xl bg-clip-border"
                             >
                                 <nav 
                                     className="flex min-w-[240px] flex-col gap-1 p-2 font-sans text-base font-normal text-blue-gray-700"
@@ -131,7 +139,7 @@ const index = () => {
                                 label="Tu(s) Nombre(s)" 
                                 onChange={(e) => setDatosTitulado({...datosTitulado, nombreUsuario: e.target.value})}
                             /> */}
-                            <div className='flex gap-4'>
+                            <div className='flex flex-col md:flex-row gap-4'>
                                 <Input 
                                     crossOrigin="anonymous" 
                                     type='password'
@@ -169,4 +177,4 @@ const index = () => {
   )
 }
 
-export default index
+export default Index

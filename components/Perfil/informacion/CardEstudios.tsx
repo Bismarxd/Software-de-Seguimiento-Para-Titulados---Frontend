@@ -25,13 +25,13 @@ type PropsEstudioPostGrado = {
 }
 
 type Props = {
-    estudiosPostGrado: [],
+    estudiosPostGrado: PropsEstudioPostGrado[],
 
 }
 
 const columnas = ["Titulo", "Año de Inicio", "Año de Graduación", "Modalidad de Graduación", "Grado Academico", "Tipo de Estudio", "Titulo de Trabajo Final", "Acciones"];
 
-const CardEstudios = ({estudiosPostGrado}: PropsEstudioPostGrado) => {
+const CardEstudios = ({estudiosPostGrado}: Props) => {
     const [modalEditar, setModalEditar] = useState(false)
     const [modalVer, setModalVer] = useState(false)
     const openDrawer = () => setModalVer(true);
@@ -60,7 +60,10 @@ const CardEstudios = ({estudiosPostGrado}: PropsEstudioPostGrado) => {
         confirmButtonText: "Si, eliminar!"
       }).then((result) => {
         if (result.isConfirmed) {
-            axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_estudio/${id}`)
+          const userId = localStorage.getItem('userId');
+            axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_estudio/${id}`,{
+              data:{adminId:userId}
+          })
             .then(result => {
                 if (result.data.status) {
                     toast.error('Estudio PostGrado Eliminado Correctamente', {                     

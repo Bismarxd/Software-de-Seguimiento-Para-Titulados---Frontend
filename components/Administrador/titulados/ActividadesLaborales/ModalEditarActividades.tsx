@@ -34,47 +34,36 @@ const ModalEditarActividades = (props: Props) => {
 
     const [datosEditados, setDatosEditados] = useState(props.actividad)
 
-
     useEffect(() => {
-        //traer los estados laborales
-    axios.get('http://localhost:8000/titulado/obtener_estados_laboral')
-    .then(result => {
-    if (result.data.status) {
-        const estados = [ {value: "", label: ""}, ...result.data.result.map((item) => ({
-            value: item.id,
-            label: item.tituloEstado
-        }))]
-
-        setEstadosLaboral(estados)
-
-        
-    }else {
-        alert(result.data.Error)
-    }
-    }).catch(err => console.log(err))
+      
 
     },[])
 
-    const handleClick = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleClick: React.MouseEventHandler<HTMLButtonElement> | undefined = (e) => {
         e.preventDefault();
-         // Verificar si algún campo está vacío
-      // const camposVacios = Object.entries(datosEditados).filter(([key, value]) => value === "");
-    
-      // if (camposVacios.length > 0) {
-      //     setAlerta(true);
-      //     setAlertaMensaje(`Los siguientes campos están vacíos: ${camposVacios.map(([key]) => key).join(", ")}`);
-      //     setTimeout(() => {
-      //       setAlerta(false)
-      //     }, 5000)
-      //     return; // Detener la función si hay campos vacíos
-      // }
+         //Verificar si algún campo está vacío
+         if (datosEditados.institucionTrabajo === '' && datosEditados.cargoOTareaTrabajo === '' && datosEditados.estaTrabajando === '') {
+            setAlerta(true);
+            setAlertaMensaje('Hay Campos Vacios');
+            setTimeout(() => {
+                setAlerta(false)
+            }, 5000)
+            return; // Detener la función si hay campos vacíos
+        }
+
+        const user = localStorage.getItem('userId');
+        // Agregar el usuario a los datos editados
+        const datosEditadosConUsuario = {
+            ...datosEditados,
+            adminId: user // Asegúrate de tener un identificador válido del usuario
+        };
         axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/editar_laboral_titulado/${datosEditados.actividadLaboralId
-        }`, datosEditados)
+        }`, datosEditadosConUsuario)
         .then(result => {
             if (result.data.status) {
               
               props.setModalEditar(false)  
-              toast.info('Oferta Editada Correctamente', {
+              toast.info('Actividad Laboral Editada Correctamente', {
                 autoClose: 2000,
                 onClose: () => window.location.reload()
               })           
@@ -91,7 +80,7 @@ const ModalEditarActividades = (props: Props) => {
            className='absolute top-3 right-3 cursor-pointer text-stone-900 text-3xl'
            onClick={() => props.setModalEditar(false)}
        >X</span>
-       <h1 className='text-slate-900 mb-10 text-2xl text-center'>Añadir Actividad Laboral</h1>
+       <h1 className='text-slate-900 mb-10 text-2xl text-center'>Editar Actividad Laboral</h1>
        <form 
            className=' text-slate-800'
        >
@@ -106,6 +95,7 @@ const ModalEditarActividades = (props: Props) => {
                <Input 
                    crossOrigin={'anonimus'}
                    label="Institución u Empresa"
+                   placeholder={props.actividad.institucionTrabajo}
                    onChange={e => setDatosEditados({...datosEditados, 'institucionTrabajo': e.target.value})}     
                    name='institucionTrabajo'
                />
@@ -113,6 +103,7 @@ const ModalEditarActividades = (props: Props) => {
                    crossOrigin={'anonimus'}
                    label="Año de Ingreso"
                    type='number'
+                   placeholder={props.actividad.aIngresoTrabajo}
                    onChange={e => setDatosEditados({...datosEditados, 'aIngresoTrabajo': e.target.value})}     
                    name='aIngresoTrabajo'
                />
@@ -121,6 +112,7 @@ const ModalEditarActividades = (props: Props) => {
                <Input 
                    crossOrigin={'anonimus'}
                    label="Cargo o Tarea"
+                   placeholder={props.actividad.cargoOTareaTrabajo}
                    onChange={e => setDatosEditados({...datosEditados, 'cargoOTareaTrabajo': e.target.value})}     
                    name='cargoOTareaTrabajo'
                />
@@ -141,26 +133,24 @@ const ModalEditarActividades = (props: Props) => {
                    <Input 
                    crossOrigin={'anonimus'}
                    label="Año de Finalisación"
+                   placeholder={props.actividad.aFinalisacionTrabajo}
                    onChange={e => setDatosEditados({...datosEditados, 'aFinalisacionTrabajo': e.target.value})}     
                    name='aFinalisacionTrabajo'
                />
                }
 
-               {datosEditados.estaTrabajando === 'si' &&
-                    <Select
-                    placeholder="Estado Trabajo Actual"
-                    onChange={value => setDatosEditados({...datosEditados, 'estadoActividadLaboralId': value})}  
-                    name='estadoActividadLaboralId'             
-                   >
-                       {estadosLaboral.map(item => (
-                           <Option key={item.value} value={item.value}>
-                               {item.label}
-                           </Option>
-                       ))}
-                   </Select>
-               }
-
-              
+                <div className='flex gap-3'>
+                    <Input 
+                        crossOrigin={'anonimus'}
+                        label="Tiempo de Trabajo"
+                        type='number'
+                        placeholder={props.actividad.duracionTrabajo}
+                        onChange={e => setDatosEditados({...datosEditados, 'duracionTrabajo': e.target.value})}     
+                        name='duracionTrabajo'
+                    />
+                    <Typography placeholder className="">años</Typography>
+                </div>
+                
 
             </div>
             <button 

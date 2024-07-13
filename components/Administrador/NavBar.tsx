@@ -15,9 +15,13 @@ const NavBar = ({titulo}: titulo) => {
   const router = useRouter()
   
   const handleLogout = () => {
-    axios.get('http://localhost:8000/auth/logout')
+    axios.get(`${process.env.NEXT_PUBLIC_URL}/auth/logout`)
     .then(result => {
       if (result.data.status)  {
+        localStorage.removeItem('valid');
+        localStorage.removeItem('tipo');
+        localStorage.removeItem('userId');
+
         router.push('/')
       }
     }).catch(err => console.log(err))

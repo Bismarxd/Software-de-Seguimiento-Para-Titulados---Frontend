@@ -1,10 +1,12 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import { FaRegTrashAlt, FaRegEdit, FaEye } from "react-icons/fa";
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { Tooltip } from 'react-tooltip';
 import { toast } from 'react-toastify'
+import EditarAdmin from './anadirAdministrador/Pasos/EditarAdmin';
+import VerAdmin from './anadirAdministrador/VerAdmin';
 
 //Variables typescript
 type Props = {
@@ -13,6 +15,31 @@ type Props = {
 }
 
 const PaginacionAdministradores = (props: Props) => {
+
+    const [abrirModal, setAbrirModal] = useState(false);
+    const [id, setId] = useState(0)
+    const [adminId, setAdminId] = useState<number>(0)
+
+    const [modalVer, setModalVer] = useState(false)
+    const openDrawer = () => setModalVer(true);
+    const closeDrawer = () => setModalVer(false);
+
+    const [admin, setAdmin] = useState('')
+
+    //pare editar
+    const handleEditar = (id: number) => {
+        const adminIdLocal = Number(localStorage.getItem('userId'))
+        setAdminId(adminIdLocal)
+        setAbrirModal(true)
+        setId(id)
+    }
+
+    //Para Ver
+    const handleVer = (admin :any) => {
+        setModalVer(true)
+        setAdmin(admin)
+    }
+
 
     const columnaAcciones: GridColDef = {
         field: "acciones",
@@ -25,7 +52,7 @@ const PaginacionAdministradores = (props: Props) => {
                         className='hover:cursor-pointer'
                         data-tooltip-id='my-tooltip'
                         data-tooltip-content="Editar"
-                        // onClick={() => handleEditar(params.row.id)}
+                        onClick={() => handleEditar(params.row.id)}
                     >
                         <FaRegEdit 
                             className='text-blue-600 text-xl m-4'
@@ -50,6 +77,7 @@ const PaginacionAdministradores = (props: Props) => {
                         className='hover:cursor-pointer'
                         data-tooltip-id='my-tooltip'
                         data-tooltip-content="Ver"
+                        onClick={() => handleVer(params.row)}
                     >
                         <FaEye 
                             className='text-green-600 text-xl m-4'
@@ -72,7 +100,10 @@ const PaginacionAdministradores = (props: Props) => {
         confirmButtonText: "Si, eliminar!"
       }).then((result) => {
         if (result.isConfirmed) {
-            axios.delete(`${process.env.NEXT_PUBLIC_URL}/administradores/eliminar_administrador/`+id)
+            const adminId = localStorage.getItem('userId');
+            axios.delete(`${process.env.NEXT_PUBLIC_URL}/administradores/eliminar_administrador/`+id, {
+                data: { adminId: adminId } 
+            })
             .then(result => {
                 if (result.data.status) {
                     toast.error('Administrador Eliminado Correctamente', {                     
@@ -96,7 +127,7 @@ const PaginacionAdministradores = (props: Props) => {
   return (
     <div className='m-5'>
         <DataGrid
-            className='bg-white'
+            className='bg-slate-500'
             sx={{
                 '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
                 
@@ -132,6 +163,24 @@ const PaginacionAdministradores = (props: Props) => {
             disableDensitySelector
             disableColumnSelector       
         />
+
+        {modalVer && 
+            <VerAdmin
+                openDrawer={openDrawer}
+                closeDrawer={closeDrawer}
+                modalVer={modalVer}
+                admin = {admin}
+            />
+
+        }
+
+        {abrirModal &&
+            <EditarAdmin
+                setAbrirModal={setAbrirModal}
+                id={id}
+                adminId={adminId}
+            />
+        }
     </div>
   )
 }

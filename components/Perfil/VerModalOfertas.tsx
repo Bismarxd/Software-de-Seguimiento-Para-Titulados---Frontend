@@ -7,9 +7,20 @@ import { toast } from 'react-toastify'
 import axios from 'axios'
 import { Typography, Chip, Card } from '@mui/material';
 
+type PropsEmpresa = {
+  titulo: string;
+  empresa: string;
+  telefono: string;
+  salario: number;
+  fechaVencimiento: string;
+  ubicacion: string;
+  descripcion: string;
+
+}
+
 type Props = {
     setAbrirModal: React.Dispatch<React.SetStateAction<boolean>>,
-    oferta : {titulo: '', telefono: ''}
+    oferta : PropsEmpresa
 }
 
 const VerModalOfertas = (props: Props) => {

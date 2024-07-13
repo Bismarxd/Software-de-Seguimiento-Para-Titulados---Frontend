@@ -23,17 +23,18 @@ type PropsActividadLaboral = {
     institucionTrabajo:"",
     estadoActividadLaboralId: "",
     tituladoId: "",
+    actividadLaboralId: ''
 }
 
 type Props = {
-    actividadLaboral: [],
+    actividadLaboral:PropsActividadLaboral[],
 
 }
 
-const columnas = ["Empresa u Intitución", "Año de Ingreso", "Año de Finalisación", "Sigue Trabajando?", "Cargo o Tarea", "Duración", "Institución", "Estado", "Acciones"];
+const columnas = ["Empresa u Intitución", "Año de Ingreso", "Año de Finalisación", "Sigue Trabajando?", "Cargo o Tarea", "Duración", "Institución", "Acciones"];
 
 
-const CardActividad = ({actividadLaboral}: PropsActividadLaboral) => {
+const CardActividad = ({actividadLaboral}: Props) => {
 
     const [modalEditar, setModalEditar] = useState(false)
     const [modalVer, setModalVer] = useState(false)
@@ -64,7 +65,10 @@ const CardActividad = ({actividadLaboral}: PropsActividadLaboral) => {
         confirmButtonText: "Si, eliminar!"
       }).then((result) => {
         if (result.isConfirmed) {
-            axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_laborales/${id}`)
+          const userId = localStorage.getItem('userId');
+            axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_laborales/${id}`,{
+              data:{adminId:userId}
+          })
             .then(result => {
                 if (result.data.status) {
                     toast.error('Actividad Laboral Eliminado Correctamente', {                     
@@ -194,54 +198,45 @@ const CardActividad = ({actividadLaboral}: PropsActividadLaboral) => {
                           {trabajo.institucionTrabajo}
                         </Typography>
                       </td>
-                      <td className={classes}>
-                        <Typography
-                          placeholder
-                          variant="small"
-                          color="blue-gray"
-                          className="font-normal"
-                        >
-                          {trabajo.estadoActividadLaboralId}
-                        </Typography>
-                      </td>
+                     
                       <td className='p-4 m-3'>
-                                  <div className="flex gap-5">
-                                      <div 
-                                          className='hover:cursor-pointer'
-                                          data-tooltip-id='my-tooltip'
-                                          data-tooltip-content="Editar"
-                                          onClick={() => handleEditar(trabajo)}
-                                      >
-                                          <FaRegEdit 
-                                              className='text-blue-600 text-xl m-4'
-                                          />
-                                          
-                                      </div>
-                                  
-                                  
-                                      <div 
-                                          className="hover:cursor-pointer" 
-                                          data-tooltip-id='my-tooltip'
-                                          data-tooltip-content="Eliminar"
-                                          onClick={() => handleDelete(trabajo.actividadLaboralId)}
-                                      >
-                                          <FaRegTrashAlt 
-                                              className='text-red-600 text-xl m-4'
-                                              
-                                          />
-                                      </div>
-                                      <Tooltip id='my-tooltip'/>
-                                      <div 
-                                          className='hover:cursor-pointer'
-                                          data-tooltip-id='my-tooltip'
-                                          data-tooltip-content="Ver"
-                                          onClick={() => handleVer(trabajo)}
-                                      >
-                                          <FaEye 
-                                              className='text-green-600 text-xl m-4'
-                                          />
-                                      </div>
-                                  </div>
+                        <div className="flex gap-5">
+                            <div 
+                                className='hover:cursor-pointer'
+                                data-tooltip-id='my-tooltip'
+                                data-tooltip-content="Editar"
+                                onClick={() => handleEditar(trabajo)}
+                            >
+                                <FaRegEdit 
+                                    className='text-blue-600 text-xl m-4'
+                                />
+                                
+                            </div>
+                        
+                        
+                            <div 
+                                className="hover:cursor-pointer" 
+                                data-tooltip-id='my-tooltip'
+                                data-tooltip-content="Eliminar"
+                                onClick={() => handleDelete(trabajo.actividadLaboralId)}
+                            >
+                                <FaRegTrashAlt 
+                                    className='text-red-600 text-xl m-4'
+                                    
+                                />
+                            </div>
+                            <Tooltip id='my-tooltip'/>
+                            <div 
+                                className='hover:cursor-pointer'
+                                data-tooltip-id='my-tooltip'
+                                data-tooltip-content="Ver"
+                                onClick={() => handleVer(trabajo)}
+                            >
+                                <FaEye 
+                                    className='text-green-600 text-xl m-4'
+                                />
+                            </div>
+                        </div>
                       </td>
                     </tr>
                   );

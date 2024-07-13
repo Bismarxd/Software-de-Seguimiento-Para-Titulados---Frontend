@@ -16,6 +16,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "utils/colores.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "utils/colores.js", "utils/axios.js", "tests/login.spec.js"],
   "exclude": ["node_modules"]
 }

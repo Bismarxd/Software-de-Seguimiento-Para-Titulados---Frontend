@@ -4,7 +4,8 @@ import BarraControl from '@/components/Administrador/gestionUsuarios/anadirTitul
 import NavegacionControl from '@/components/Administrador/gestionUsuarios/anadirTitulado/NavegacionControl'
 import DatosBasicos from '@/components/Administrador/gestionUsuarios/anadirTitulado/pasos/DatosBasicos'
 import EstudiosPostGrado from '@/components/Administrador/gestionUsuarios/anadirTitulado/pasos/EstudiosPostGrado'
-import React, {useState, useContext} from 'react'
+import React, {useState} from 'react'
+import DOMPurify from 'dompurify';
 import { PasoContext } from '@/context/PasoContext'
 import axios from 'axios'
 import ActividadLaboral from '@/components/Administrador/gestionUsuarios/anadirTitulado/pasos/ActividadLaboral'
@@ -14,11 +15,50 @@ import Investigaciones from '@/components/Administrador/gestionUsuarios/anadirTi
 import ProduccionesIntelectual from '@/components/Administrador/gestionUsuarios/anadirTitulado/pasos/ProduccionesIntelectual'
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
+import { useGridStrategyProcessing } from '@mui/x-data-grid/hooks/core/strategyProcessing'
 
-const index = () => {
+
+interface EstudioPostGrado {
+    aInicioPostGrado: string;
+    tituloCursoPostGrado: string;
+    tipoEstudioPostGrado: string;
+    gradoAcademicoPostGrado: string;
+    aGraduacionPostGrado: string;
+    modalidadGraduacionPostGrado: string;
+    tituloTrabajoPostGrado: string;
+    titulo: string;
+}
+
+interface ActividadLaboral {
+    aIngresoTrabajo: string;
+    aFinalisacionTrabajo: string;
+    estaTrabajando: boolean;
+    cargoOTareaTrabajo: string;
+    duracionTrabajo: string;
+    institucionTrabajo: string;
+    estadoActividadLaboralId: number;
+}
+
+interface Investigacion {
+    aInvestigacion: string;
+    temaInvestigacion: string;
+    institucionInvestigacion: string;
+    publicacionId: number;
+}
+
+interface ProduccionIntelectual {
+    aProduccion: string;
+    temaProduccion: string;
+    institucionProduccion: string;
+    publicacionId: number;
+    formaTrabajoProduccionId: number; 
+}
+
+const Index = () => {
     
     const [alerta, setAlerta] = useState(false)
     const [alertaMensaje, setAlertaMensaje] = useState('')
+    const [emailError, setEmailError] = useState(false);
 
     const [pasoActual, setPasoActual] = useState(1)
     const [datosUsuario, setDatosUsuario] = useState<any>({
@@ -33,12 +73,63 @@ const index = () => {
         email: ''
 
     });
-    const [datosTitulado, setDatosTitulado] = useState<any>('');
+
+    const [datosTitulado, setDatosTitulado] = useState({
+        aEgreso: '',
+        aExperienciaLaboral: '',
+        aIngreso: '',
+        aTitulacion: '',
+        areaTrabajoId: '',
+        formaTrabajoId: '',
+        gradoAcademicoId: '',
+        modalidadTitulacionId: ''
+    });
     const [estudiosPostGrado, setEstudiosPostGrado] = useState<any>([]);
     const [actividadesLaborales, setActividadesLaborales] = useState<any>([]);
     const [investigaciones, setInvestigaciones] = useState<any>([]);
     const [produccionesIntelectuales, setProduccionesIntelectuales] = useState<any>([]);
     const [datosFinales, setDatosFinales] =useState<any[]>([])
+
+    //Para sanitizar los datos
+    const sanitizeData: any = (data: any) => {
+        if (typeof data === 'string') {
+          return DOMPurify.sanitize(data);
+        } else if (Array.isArray(data)) {
+          return data.map((item: any) => sanitizeData(item));
+        } else if (typeof data === 'object' && data !== null) {
+          const sanitizedObject: any = {};
+          Object.keys(data).forEach(key => {
+            sanitizedObject[key] = sanitizeData(data[key]);
+          });
+          return sanitizedObject;
+        }
+        return data;
+      };
+      
+    //Sanitiza los datos 
+    const updateDatosTitulado = (newData: any) => {
+        setDatosTitulado(sanitizeData(newData));
+    };
+    
+    const updateEstudiosPostGrado = (newData: any) => {
+        setEstudiosPostGrado(sanitizeData(newData));
+    };
+    
+    const updateActividadesLaborales = (newData: any) => {
+        setActividadesLaborales(sanitizeData(newData));
+    };
+    
+    const updateInvestigaciones = (newData: any) => {
+        setInvestigaciones(sanitizeData(newData));
+    };
+    
+    const updateProduccionesIntelectuales = (newData: any) => {
+        setProduccionesIntelectuales(sanitizeData(newData));
+    };
+    
+    const updateDatosFinales = (newData: any[]) => {
+        setDatosFinales(sanitizeData(newData));
+    };
     
 
     const pasos = [
@@ -73,6 +164,16 @@ const index = () => {
         }
     }
 
+    const validateEmail = (email: string) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
+
+    const validateCI = (ci: string) => {
+        const ciPattern = /^\d+[a-zA-Z]+$/;
+        return ciPattern.test(datosUsuario.ci);
+      };
+
 
     const handleClick = (dirrection: string) => {
         const camposVaciosDatosUsuarios = Object.entries(datosUsuario).filter(([key, value]) => value === "");
@@ -86,18 +187,33 @@ const index = () => {
               setAlerta(false)
             }, 5000)
             return; // Detener la función si hay campos vacíos
+             // Validar el C.I.
+           
         }
-        //para controlar los errores de los datos del titulado
-        if (camposVaciosDatosTitulado.length > 0) {
+
+        if (!validateEmail(datosUsuario.email)) {
+            setEmailError(true);
             setAlerta(true);
-            setAlertaMensaje(`Los siguientes campos son obligatorios: ${camposVaciosDatosTitulado.map(([key]) => key).join(", ")}`);
+            setAlertaMensaje('El correo electrónico no es válido');
             setTimeout(() => {
-              setAlerta(false)
-            }, 5000)
-            return; // Detener la función si hay campos vacíos
+                setAlerta(false);
+                setEmailError(false);
+            }, 5000);
+            return;
         }
+
+        if (!validateCI(datosUsuario.ci)) {
+            setAlerta(true);
+            setAlertaMensaje("El C.I. debe incluir una extensión, por ejemplo: 123456lp");
+            setTimeout(() => {
+            setAlerta(false);
+            }, 5000);
+            return; // Detener la función si el C.I. no es válido
+        }
+        
         //Insertar en la base de datos
         if (pasoActual === pasos.length -1) {
+            const datosSanitizadosUsuario = sanitizeData(datosUsuario)
             axios.post(`${process.env.NEXT_PUBLIC_URL}/titulado/add_persona`, datosUsuario)
             .then(result => {
                 if (result.data.status) { 
@@ -107,10 +223,17 @@ const index = () => {
                     axios.post(`${process.env.NEXT_PUBLIC_URL}/titulado/add_usuario`, {personaId})
                     .then(result => {
                         if (result.data.status) {
-                            const usuarioId = result.data.id;
-                            
-                            
-                            setDatosTitulado({...datosTitulado, usuarioId: usuarioId})
+                            //para controlar los errores de los datos del titulado
+                            if (camposVaciosDatosTitulado.length > 0) {
+                                setAlerta(true);
+                                setAlertaMensaje(`Los siguientes campos son obligatorios: ${camposVaciosDatosTitulado.map(([key]) => key).join(", ")}`);
+                                setTimeout(() => {
+                                setAlerta(false)
+                                }, 5000)
+                                return; // Detener la función si hay campos vacíos
+                            }
+
+                            const usuarioId = result.data.id;          
 
                             // Crear un FormData
                             const formData = new FormData();
@@ -133,7 +256,7 @@ const index = () => {
                                     const formData = new FormData();
                                     
                                     //Añadir el estudio postgrado
-                                    estudiosPostGrado.forEach(estudio => {
+                                    estudiosPostGrado.forEach((estudio: EstudioPostGrado) => {
                                         const formData = new FormData();
                                             formData.append('tituladoId', tituladoId);
                                             formData.append('aInicioPostGrado', estudio.aInicioPostGrado);
@@ -160,7 +283,7 @@ const index = () => {
                                     
                                     })  
                                         //Añadir las actividades laborales
-                                    actividadesLaborales.forEach(actividad => {
+                                    actividadesLaborales.forEach((actividad: ActividadLaboral) => {
                                         
 
                                         const datosActividadesLaborales = {
@@ -187,7 +310,7 @@ const index = () => {
                                     })
 
                                     //Añadir las investigaciones
-                                    investigaciones.forEach(investigacion => {                                       
+                                    investigaciones.forEach((investigacion: Investigacion) => {                                       
 
                                         const datosInvestigaciones = {
                                         tituladoId: tituladoId,
@@ -210,7 +333,7 @@ const index = () => {
                                     })
 
                                     //Añadir las Producciones Intelectuales
-                                    produccionesIntelectuales.forEach(produccion => {                                       
+                                    produccionesIntelectuales.forEach((produccion: ProduccionIntelectual) => {                                       
 
                                         const datosProduccionesIntelectual = {
                                         tituladoId: tituladoId,
@@ -335,4 +458,4 @@ const index = () => {
   )
 }
     
-export default index
+export default Index

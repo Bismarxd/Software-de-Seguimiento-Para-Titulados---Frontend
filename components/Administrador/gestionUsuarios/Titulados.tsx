@@ -18,7 +18,7 @@ const columnas: GridColDef[] = [
       headerName: "Imagen",
       width: 100,
       renderCell: (params) => {
-        return <Image src={`http://localhost:8000/imagenes/`+params.row.imagen || ""} alt='/umsa.png' width={50} height={50}/>
+        return <Image src={`${process.env.NEXT_PUBLIC_URL}/imagenes/`+params.row.imagen || ""} alt='/umsa.png' width={50} height={50}/>
       }
     },
     {
@@ -68,8 +68,9 @@ const Titulados = () => {
     .then(result => {
         if (result.data.status) {
             const titulados = result.data.result
-              .filter(titulado => titulado.administrador === 0)
-              .sort((a, b) => b.id - a.id);
+              .filter((titulado: any) => titulado.administrador === 0 && titulado.id !== null && titulado.activo === 1)
+              .sort((a: any, b: any) => b.id - a.id);
+        
 
         setDatosTitulados(titulados);
 

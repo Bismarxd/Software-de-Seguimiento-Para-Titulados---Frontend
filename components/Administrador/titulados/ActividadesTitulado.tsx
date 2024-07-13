@@ -11,7 +11,22 @@ import ModalAddActividades from './ActividadesLaborales/ModalAddActividades';
 import ModalEditarActividades from './ActividadesLaborales/ModalEditarActividades';
 import ModalVerActividades from './ActividadesLaborales/ModalVerActividades';
 
-const ActividadesTitulado = ({actividadesLaborales}) => {
+type PropsActividadLaboral = {
+    aFinalisacionTrabajo: string;
+    aIngresoTrabajo: string;
+    cargoOTareaTrabajo: string;
+    duracionTrabajo: string;
+    estaTrabajando: string;
+    institucionTrabajo: string;
+    tituloEstado: string;
+    actividadLaboralId: number;
+};
+type PropsActividad = {
+    actividadesLaborales: PropsActividadLaboral[];
+    setActividadesLaborales: (estudios: PropsActividadLaboral[]) => void;
+};
+
+const ActividadesTitulado: React.FC<PropsActividad> = ({ actividadesLaborales, setActividadesLaborales }) => {
 
     const router = useRouter();
     const { url } = router.query;
@@ -40,7 +55,6 @@ const ActividadesTitulado = ({actividadesLaborales}) => {
     }
 
     const handleDelete = (id :any) => {
-        console.log(id)
         Swal.fire({
             title: "Esta seguro?",
             text: "Esta acción es irreversible!",
@@ -51,7 +65,10 @@ const ActividadesTitulado = ({actividadesLaborales}) => {
             confirmButtonText: "Si, eliminar!"
           }).then((result) => {
             if (result.isConfirmed) {
-                axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_laborales/${id}`)
+                const userId = localStorage.getItem('userId');
+                axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_laborales/${id}`, {
+                    data:{adminId:userId}
+                })
                 .then(result => {
                     if (result.data.status) {
                         toast.error('Estudio PostGrado Eliminado Correctamente', {                     
@@ -95,10 +112,10 @@ const ActividadesTitulado = ({actividadesLaborales}) => {
                 <th className='p-5'><Typography placeholder >Año de <br/> Finalisación</Typography></th>
                 <th className='p-5'><Typography placeholder >Año de <br/> Ingreso</Typography></th>
                 <th className='p-5'><Typography placeholder >Cargo o <br/> Tarea</Typography></th>
-                <th className='p-5'><Typography placeholder >Duración</Typography></th>                             
+                <th className='p-5'><Typography placeholder >Tiempo de Trabajo(años)</Typography></th>                             
                 <th className='p-5'><Typography placeholder >Esta <br/> Trabajando?</Typography></th>
                 <th className='p-5'><Typography placeholder >Institución</Typography></th>
-                <th className='p-5'><Typography placeholder >Estado</Typography></th>
+
                 <th className='p-5'><Typography placeholder >Acciones</Typography></th>
             </tr>
             {actividadesLaborales.map((trabajo, index) => (
@@ -109,7 +126,7 @@ const ActividadesTitulado = ({actividadesLaborales}) => {
                     <td className='p-4 m-3'><Typography placeholder >{trabajo.duracionTrabajo}</Typography></td>
                     <td className='p-4'><Typography placeholder >{trabajo.estaTrabajando}</Typography></td>
                     <td className='p-4'><Typography placeholder >{trabajo.institucionTrabajo}</Typography></td>
-                    <td className='p-4'><Typography placeholder >{trabajo.tituloEstado}</Typography></td>
+
                     <td className='p-4 m-3'>
                             <div className="flex gap-5">
                                 <div 
@@ -155,6 +172,7 @@ const ActividadesTitulado = ({actividadesLaborales}) => {
         </table>
         {modalVer && 
             <ModalVerActividades
+                openDrawer={openDrawer}
                 closeDrawer={closeDrawer}
                 modalVer={modalVer}
                 actividad = {actividad}

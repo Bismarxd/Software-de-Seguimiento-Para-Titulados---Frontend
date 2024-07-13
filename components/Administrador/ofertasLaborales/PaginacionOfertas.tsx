@@ -6,6 +6,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify'
 import ModalEditar from './ModalEditar';
+import ModalVerOferta from './ModalVerOferta';
 
 //Variables typescript
 type Props = {
@@ -18,16 +19,30 @@ const PaginacionOfertas = (props: Props) => {
     const [estado, setEstado] = useState(1)
     const [abrirModal, setAbrirModal] = useState(false);
     const [id, setId] = useState(0)
+    const [adminId, setAdminId] = useState<number>(0)
+
+    const [modalVer, setModalVer] = useState(false)
+    const openDrawer = () => setModalVer(true);
+    const closeDrawer = () => setModalVer(false);
+
+    const [oferta, setOferta] = useState('')
 
     //pare editar
     const handleEditar = (id: number) => {
+        const adminIdLocal = Number(localStorage.getItem('userId'))
+        setAdminId(adminIdLocal)
         setAbrirModal(true)
         setId(id)
     }
 
+    //Para Ver
+    const handleVer = (oferta :any) => {
+        setModalVer(true)
+        setOferta(oferta)
+    }
+
     //para editar los estados
     const handleEstado = async (id: number, estado: number) => {
-        console.log(id + ":" + estado);
         try {
             const nuevoEstado = estado === 1 ? 0 : 1;
             
@@ -70,7 +85,10 @@ const PaginacionOfertas = (props: Props) => {
             confirmButtonText: "Si, eliminar!"
           }).then((result) => {
             if (result.isConfirmed) {
-                axios.delete(`${process.env.NEXT_PUBLIC_URL}/ofertas/eliminar_oferta/`+id)
+                const adminIdLocal = localStorage.getItem('userId');
+                axios.delete(`${process.env.NEXT_PUBLIC_URL}/ofertas/eliminar_oferta/`+id, {
+                    data: {adminId : adminIdLocal}
+                })
                 .then(result => {
                     if (result.data.status) {
                         toast.error('Oferta Laboral Eliminada Correctamente', {                     
@@ -143,6 +161,7 @@ const PaginacionOfertas = (props: Props) => {
                         className='hover:cursor-pointer'
                         data-tooltip-id='my-tooltip'
                         data-tooltip-content="Ver"
+                        onClick={() => handleVer(params.row)}
                     >
                         <FaEye 
                             className='text-green-600 text-xl m-4'
@@ -156,7 +175,7 @@ const PaginacionOfertas = (props: Props) => {
   return (
     <div className='m-5'>
     <DataGrid
-        className='bg-white'
+        className='bg-slate-500'
         sx={{
             '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
             
@@ -192,10 +211,21 @@ const PaginacionOfertas = (props: Props) => {
         disableDensitySelector
         disableColumnSelector       
     />
+
+    {modalVer && 
+        <ModalVerOferta
+            openDrawer={openDrawer}
+            closeDrawer={closeDrawer}
+            modalVer={modalVer}
+            oferta = {oferta}
+        />
+
+    }
     {abrirModal &&
         <ModalEditar
             setAbrirModal={setAbrirModal}
             id={id}
+            adminId={adminId}
         />
     }
 </div>

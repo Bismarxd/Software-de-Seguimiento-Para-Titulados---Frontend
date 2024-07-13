@@ -9,13 +9,17 @@ import {
     Option
   } from "@material-tailwind/react";
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { LuSendHorizonal } from "react-icons/lu";
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
+import axios from 'axios';
 
-const index = () => {
+const Index = () => {
+    const router = useRouter();
 
     const [email, setEmail] = useState('')
+    console.log(email)
 
     const [alerta, setAlerta] = useState(false)
     const [alertaMensaje, setAlertaMensaje] = useState('')
@@ -37,6 +41,22 @@ const index = () => {
                 setEmailError(false);
             }, 5000);
             return;
+        }
+
+        try {
+            axios.post(`${process.env.NEXT_PUBLIC_URL}/registro/recuperar_cuenta    `, { email: email})
+                .then(result =>{
+                    if(result.data.status)
+                        {
+                            router.push('/registro/codigo')
+                        }else {
+                            console.log(result.data.Error)
+                        }
+                })
+                .catch(err => console.log(err)) 
+            
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -76,7 +96,7 @@ const index = () => {
                            crossOrigin="anonymous" 
                            type='email'
                            label="Ingrese su Correo" 
-                           
+                           onChange={e => setEmail(e.target.value)}
                        />
                    </div>
 
@@ -101,4 +121,4 @@ const index = () => {
   )
 }
 
-export default index
+export default Index

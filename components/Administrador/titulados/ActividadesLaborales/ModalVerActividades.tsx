@@ -6,8 +6,14 @@ import {
     IconButton,
   } from "@material-tailwind/react";
 
-const ModalVerActividades = ({openDrawer, closeDrawer, actividad, modalVer}) => {
-  console.log(actividad)
+type Props = {
+  openDrawer: any;
+  closeDrawer: any;
+  actividad: any;
+  modalVer: any;
+}
+
+const ModalVerActividades = ({openDrawer, closeDrawer, actividad, modalVer}: Props) => {
   return (
     <Drawer placeholder open={modalVer} onClose={closeDrawer} className="p-4" placement="top">
         <div className="mb-6 flex items-center justify-between">
@@ -38,24 +44,26 @@ const ModalVerActividades = ({openDrawer, closeDrawer, actividad, modalVer}) => 
           <Typography placeholder color="gray" className="mb-8 pr-4 font-normal">         
             Año de Ingreso: {actividad.aIngresoTrabajo}
           </Typography>
-          <Typography placeholder color="gray" className="mb-8 pr-4 font-normal">         
-            Año de Finalisación : {actividad.aFinalisacionTrabajo}
+          <Typography placeholder color="gray" className="mb-8 pr-4 font-normal">
+            {actividad.aFinalisacionTrabajo && (
+              <>Año de Finalización: {actividad.aFinalisacionTrabajo}</>
+            )}
           </Typography>
           <Typography placeholder color="gray" className="mb-8 pr-4 font-normal">         
             Cargo o Tarea: {actividad.cargoOTareaTrabajo}
           </Typography>
 
-          <Typography placeholder color="gray" className="mb-8 pr-4 font-normal">         
-            Duración: {actividad.duracionTrabajo}
+          <Typography placeholder color="gray" className="mb-8 pr-4 font-normal">
+            {actividad.duracionTrabajo && (
+              <>Duración: {actividad.duracionTrabajo} años</>
+            )}
           </Typography>
 
           <Typography placeholder color="gray" className="mb-8 pr-4 font-normal">         
             Esta Trabajando: {actividad.estaTrabajando}
           </Typography>
 
-          <Typography placeholder color="gray" className="mb-8 pr-4 font-normal">         
-            Estado: {actividad.tituloEstado}
-          </Typography>
+         
 
         </div>
         

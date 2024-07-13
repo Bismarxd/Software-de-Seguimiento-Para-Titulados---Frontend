@@ -20,17 +20,19 @@ type PropsInvestigaciones = {
     institucionInvestigacion: "",
     publicacionId: "",
     tituladoId: "",
+    tipoPublicacion: "",
+    investigacionId: ""
 }
 
 type Props = {
-    investigaciones: [],
+    investigaciones: PropsInvestigaciones[],
 
 }
 
 const columnas = ["Año de la Investigación", "Tema", "Institución", "Tipo de Publicación", "Acciones"];
 
-const CardInvestigaciones = ({investigaciones}: PropsInvestigaciones) => {
-    console.log(investigaciones)
+const CardInvestigaciones = ({investigaciones}: Props) => {
+
 
     const [modalEditar, setModalEditar] = useState(false)
     const [modalVer, setModalVer] = useState(false)
@@ -61,7 +63,10 @@ const CardInvestigaciones = ({investigaciones}: PropsInvestigaciones) => {
         confirmButtonText: "Si, eliminar!"
       }).then((result) => {
         if (result.isConfirmed) {
-            axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_investigacion/${id}`)
+          const userId = localStorage.getItem('userId');
+            axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_investigacion/${id}`,{
+              data:{adminId:userId}
+          })
             .then(result => {
                 if (result.data.status) {
                     toast.error('Investigacion Eliminada Correctamente', {                     

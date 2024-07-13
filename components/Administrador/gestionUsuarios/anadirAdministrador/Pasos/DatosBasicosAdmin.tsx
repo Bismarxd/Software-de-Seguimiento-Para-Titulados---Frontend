@@ -15,26 +15,31 @@ interface Props {
   apellidoPaterno: string,
   apellidoMaterno: string,
   email: string,
-   ci: number,
-   direccion: string,
-   fechaNacimiento: string,
-   celular: number,
-   sexo: string
+  ci: string,
+  direccion: string,
+  fechaNacimiento: string,
+  celular: number,
+  sexo: string
 }
 
 interface PropsContext {
-  datosUsuario: Props ,
-  setDatosUsuario: React.Dispatch<React.SetStateAction<Props>>
+  datosBasicos: Props ,
+  setDatosBasicos: React.Dispatch<React.SetStateAction<Props>> 
 }
 
 const DatosBasicosAdmin = () => {
 
-  const {datosBasicos,setDatosBasicos}: PropsContext = useContext(AdministradorContext)
+  const {datosBasicos,setDatosBasicos}: PropsContext = useContext<any>(AdministradorContext)
   
   const handleChange = (e: any) => {
     const {name, value} = e.target;
     setDatosBasicos({...datosBasicos, [name]: value})
   }
+
+  const validateCI = () => {
+    const ciPattern = /^\d+[a-zA-Z]+$/;
+    return ciPattern.test(datosBasicos.ci);
+  };
 
   return (
     <div className='flex flex-col'>
@@ -102,9 +107,11 @@ const DatosBasicosAdmin = () => {
                 onChange={handleChange}
                 value={datosBasicos["ci"] || ""}
                 name='ci'
-                type='number'
-                
+                type='text'               
               />
+              {!validateCI() && datosBasicos.ci && (
+              <p className='text-red-500 text-xs italic'>El C.I. debe incluir una extensión.</p>
+            )}
             
           </div>
           {/* dirección */}
@@ -143,6 +150,7 @@ const DatosBasicosAdmin = () => {
             <div className=''>
              
                 <Input
+                  placeholder=''
                   titulo='Celular'
                   onChange={handleChange}
                   value={datosBasicos["celular"] || ""}

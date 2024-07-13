@@ -48,10 +48,10 @@ const ReportesTitulados: React.FC = () => {
 
         // Generar PDF
         const pdf = new jsPDF();
-        const imagen = '/Imagenes Login/images.png'
+        const imagen = '/Imagenes Login/margen.jpeg'
+        
         // Agrega contenido al PDF
-        pdf.addImage(imagen, 'PNG', 0, 0, 20, 20);
-        pdf.text('CARRERA DE PSICOLOGÍA - INFORME GENERAL', 30, 10);
+        pdf.addImage(imagen, 'JPEG', 0, 0, pdf.internal.pageSize.width, 20);
 
         pdf.addImage(informacionImgData, 'PNG', 20, 20, 180, 180);
         pdf.addPage();

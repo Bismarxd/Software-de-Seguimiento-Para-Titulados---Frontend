@@ -12,17 +12,21 @@ import { useRouter } from 'next/router';
 import ModalVer from './ProduccionesIntelectuales/ModalVer';
 
 type PropsProduccionesIntelectuales = {
-    aProduccion: "",
-    temaProduccion: "",
-    institucionProduccion: "",
-    tipoPublicacion: "",
-    nombreFormaTrabajoProduccion: ""
+    aProduccion: string;
+    temaProduccion: string;
+    institucionProduccion: string;
+    tipoPublicacion: string;
+    nombreFormaTrabajoProduccion: string;
 }
 
+type PropsProducciones = {
+    produccionesIntelectuales: PropsProduccionesIntelectuales[];
+    setProduccionesIntelectuales: (estudios: PropsProduccionesIntelectuales[]) => void;
+};
 
 
-const ProduccionesTitulado = ({produccionesIntelectuales} : PropsProduccionesIntelectuales) => {
-
+const ProduccionesTitulado: React.FC<PropsProducciones> = ({ produccionesIntelectuales, setProduccionesIntelectuales }) => {
+    
     const router = useRouter();
     const { url } = router.query;
 
@@ -60,7 +64,10 @@ const ProduccionesTitulado = ({produccionesIntelectuales} : PropsProduccionesInt
             confirmButtonText: "Si, eliminar!"
           }).then((result) => {
             if (result.isConfirmed) {
-                axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_produccion/${id}`)
+                const userId = localStorage.getItem('userId');
+                axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_produccion/${id}`,{
+                    data:{adminId:userId}
+                })
                 .then(result => {
                     if (result.data.status) {
                         toast.error('Producción Intelectual Eliminada Correctamente', {                     
@@ -171,9 +178,8 @@ const ProduccionesTitulado = ({produccionesIntelectuales} : PropsProduccionesInt
                                     modalAdd &&
                                     <ModalModalProduccionIntelectualAdd                                                 
                                         setModalAdd={setModalAdd}
-                                        produccionesIntelectuales={produccionesIntelectuales}
                                         id={url}
-                                        
+                                         
                                     />
                                 }
                                 {

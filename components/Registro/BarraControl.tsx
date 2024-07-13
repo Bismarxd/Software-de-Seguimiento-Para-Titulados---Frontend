@@ -1,4 +1,5 @@
 import React, {useEffect, useState, useRef} from 'react'
+import { Typography } from '@material-tailwind/react'
 
 interface Step {
     description: string;
@@ -16,7 +17,7 @@ interface Props {
 
 const BarraControl = ({pasos, pasoActual}: Props) => {
 
-    const [nuevoPaso, setNuevoPaso] = useState([])
+    const [nuevoPaso, setNuevoPaso] = useState<any>([])
     const pasoRef = useRef<any>(0);
 
     const actualizarPaso = (pasoNumero: number, pasos: []) => {
@@ -74,7 +75,7 @@ const BarraControl = ({pasos, pasoActual}: Props) => {
 
     }, [pasos, pasoActual])
 
-    const mostrarPasos = nuevoPaso.map((paso, index) => {
+    const mostrarPasos = nuevoPaso.map((paso: any, index: any) => {
         return (
             (
                 <div 
@@ -97,7 +98,7 @@ const BarraControl = ({pasos, pasoActual}: Props) => {
                         </div>
             
                         <div
-                            className={`absolute top-0 text-center mt-16 w-32 text-xs font-medium uppercase ${paso.highlighted ? "text-gray-900" : "text-gray-400"}`}
+                            className={`absolute top-0 text-center mt-16 w-32 text-[6px] md:text-xs font-medium uppercase ${paso.highlighted ? "text-gray-900" : "text-gray-400"}`}
                         >
                             {paso.description}
                         </div>
@@ -112,6 +113,7 @@ const BarraControl = ({pasos, pasoActual}: Props) => {
   return (
     <div className='mx-4 p-4 flex justify-between items-center'>
         {mostrarPasos}     
+        
     </div>
   )
 }

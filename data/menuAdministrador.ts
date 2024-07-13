@@ -34,7 +34,7 @@ export const menu: MenuItem[] = [
           
     },
     {       
-        id: 5,
+        id: 4,
         title: "Ofertas Laborales",
         url: "/administrador/laborales",
         icon: CiMemoPad ,

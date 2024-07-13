@@ -8,6 +8,8 @@ import axios from 'axios'
 
 type Props = {
     setAbrirModal: React.Dispatch<React.SetStateAction<boolean>>
+    setAbrirModalEstudios: React.Dispatch<React.SetStateAction<boolean>>
+    
 }
 
 const ModalEstudios = (props: Props) => {
@@ -88,6 +90,7 @@ const ModalEstudios = (props: Props) => {
         }
             <div className='grid grid-cols-3 gap-x-20 gap-y-3'>
                     <Input
+                        placeholder=''
                         titulo='Titulo'
                         onChange={handleChange}
                         value={ofertasLaborales['titulo']}
@@ -95,6 +98,7 @@ const ModalEstudios = (props: Props) => {
                         name='titulo'                      
                     />
                     <Input 
+                        placeholder=''
                         titulo='Empresa'
                         value={ofertasLaborales['empresa']}
                         type='text'
@@ -102,6 +106,7 @@ const ModalEstudios = (props: Props) => {
                         onChange={handleChange}                      
                     />  
                     <Input 
+                        placeholder=''
                         titulo='Ubicación'
                         value={ofertasLaborales['ubicacion']}
                         type='text'
@@ -109,6 +114,7 @@ const ModalEstudios = (props: Props) => {
                         onChange={handleChange}                      
                     />  
                     <Input 
+                        placeholder=''
                         titulo='Teléfono o Celular'
                         value={ofertasLaborales['telefono']}
                         type='number'
@@ -116,6 +122,7 @@ const ModalEstudios = (props: Props) => {
                         onChange={handleChange}                      
                     />  
                     <Input 
+                        placeholder=''
                         titulo='Salario'
                         value={ofertasLaborales['salario']}
                         type='number'
@@ -123,6 +130,7 @@ const ModalEstudios = (props: Props) => {
                         onChange={handleChange}                    
                     />  
                     <Input 
+                        placeholder=''
                         titulo='Fecha de Vencimiento'
                         value={ofertasLaborales['fechaVencimiento']}
                         type='date'
@@ -130,6 +138,7 @@ const ModalEstudios = (props: Props) => {
                         onChange={handleChange}                      
                     />  
                     <Input 
+                        placeholder=''
                         titulo='Descripción'
                         value={ofertasLaborales['descripcion']}
                         type='text'

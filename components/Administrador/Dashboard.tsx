@@ -1,25 +1,60 @@
-import React, { ReactNode, useState } from 'react'
+import React, { ReactNode, useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import axios from 'axios';
 import { Tooltip } from 'react-tooltip';
 import { menu } from '@/data/menuAdministrador' 
 import { useRouter } from 'next/router';
 import { CgMoreVertical } from 'react-icons/cg'
 import { LuChevronFirst, LuChevronLast } from 'react-icons/lu'
+import LoginPrivado from '../RutasPrivadas/LoginPrivado';
+
 
 type LayoutProps = {
     children: ReactNode
 }
 
 const Dashboard = ({children}: LayoutProps) => {
-
   const router = useRouter();
 
-  const [expandir, setExpandir] = useState(true)
+  const [administrador, setAdministrador] = useState({
+    administrador: 0,
+    nombre: '',
+    apellidoPaterno: '',
+    apellidoMaterno: '',
+    ci: '',
+    fechaNacimiento: '',
+    celular: '',
+    sexo: '',
+    direccion: '',
+    personaId: '',
+    usuarioId: '',
+    tipoAdministrador: 0
+   })
+  useEffect(() => {
+
+    // if(administrador.administrador === 0) {
+    //   router.push('/perfil')
+    // }
+
+    const id = localStorage.getItem('userId')
+    axios.get(`${process.env.NEXT_PUBLIC_URL}/administradores/obtener_admninistrador/${id}`)
+   .then(result => {
+        if(result.data.status){
+            setAdministrador(result.data.result[0])
+
+        }
+   }).catch(err => console.log(err))
+   
+},[])
+
+
+  const [expandir, setExpandir] = useState(false)
 
   const lastTwoItems = menu.slice(-2).map(item => item.id);
   return (
-    <div className='flex'>
+    <LoginPrivado>
+       <div className='flex'>
       <aside className='h-screen fixed'>
         <nav className='h-full flex flex-col bg-white border-r shadow-sm'>
           <div className='p-4 pb-2 flex justify-between items-center gap-2'>
@@ -39,7 +74,13 @@ const Dashboard = ({children}: LayoutProps) => {
               
           </div>
           <ul className='flex-1 p-3'>
-            {menu.map((item, index) => (
+          {menu.filter(item => {
+  // Check if administrador is defined and has tipoAdministrador property
+  if (administrador && administrador.tipoAdministrador !== undefined) {
+    return !(administrador.tipoAdministrador === 1 && item.id === 2);
+  }
+  return true; // If administrador is undefined, include all items
+}).map((item, index) => (
               <React.Fragment key={item.id}>
                 {index === menu.length - 2 && <hr className='my-2'/>} {/* Agregar <hr /> antes del penúltimo elemento */}
                 <Link 
@@ -85,7 +126,7 @@ const Dashboard = ({children}: LayoutProps) => {
 
          <div className='border-t flex p-3'>
             <Image
-                src="/Imagenes Login/images.png"
+                src="/Imagenes Login/logo.jpg"
                 alt=''
                 width={200}
                 height={200}
@@ -93,8 +134,8 @@ const Dashboard = ({children}: LayoutProps) => {
             />
             <div className={`flex justify-between items-center overflow-hidden transition-all ${expandir ? 'w-52 ml-3' : "w-0"}`}>
               <div className='leading-4'>
-                <h4 className='font-semibold'>Carrera de Psicología</h4>
-                  <span className='text-xs text-gray-600'>derechos reservados <br/> bismarckmaytatintaya@gmail.com</span>               
+                <h4 className='font-semibold text-gray-800'>Carrera de Psicología</h4>
+                  <span className='text-xs text-gray-600'>@derechos reservados <br/> bismarckmaytatintaya@gmail.com</span>               
               </div>
               <CgMoreVertical size={20} />
             </div>
@@ -104,6 +145,9 @@ const Dashboard = ({children}: LayoutProps) => {
       </aside>
       <main className={`w-full ${expandir ? 'ml-80' : 'ml-20'}`}>{children}</main>
     </div>
+
+    </LoginPrivado>
+   
     // <div className='flex'>
     //   <div className='fixed w-20 h-screen p-4 bg-menuColor2 border-r-[1px] flex flex-col justify-between'>
     //     <div className='flex flex-col items-center'>

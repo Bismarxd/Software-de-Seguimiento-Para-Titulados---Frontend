@@ -17,7 +17,7 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import { MenuItem } from '@mui/material';
 
-const index = () => {
+const Index = () => {
 
     const [alerta, setAlerta] = useState(false)
     const [alertaMensaje, setAlertaMensaje] = useState('')
@@ -37,10 +37,15 @@ const index = () => {
         email: '',
     })
 
-    const validateEmail = (email) => {
+    const validateEmail = (email: any) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(email);
     };
+
+    const validateCI = (ci: string) => {
+        const ciPattern = /^\d+[a-zA-Z]+$/;
+        return ciPattern.test(datosBasicos.ci);
+      };
 
 
     const handleClick =  () => {
@@ -53,7 +58,7 @@ const index = () => {
             datosBasicos.ci === '' || 
             datosBasicos.fechaNacimiento === '' || 
             datosBasicos.celular === '' || 
-            datosBasicos.sexo === ''  || 
+            
             datosBasicos.direccion === ''
           ) {
             setAlerta(true);
@@ -63,6 +68,14 @@ const index = () => {
             }, 5000);
             return;
           }
+          if (!validateCI(datosBasicos.ci)) {
+            setAlerta(true);
+            setAlertaMensaje("El C.I. debe incluir una extensión, por ejemplo: 123456lp");
+            setTimeout(() => {
+            setAlerta(false);
+            }, 5000);
+            return; // Detener la función si el C.I. no es válido
+        }
        
 
         if (!validateEmail(datosBasicos.email)) {
@@ -81,7 +94,6 @@ const index = () => {
             if (result.data.status) {
                 
                 const email = result.data.result.email
-                console.log(email);
                 axios.post(`${process.env.NEXT_PUBLIC_URL}/registro/send-email`, { email: result.data.result.email, id: result.data.id})
                 .then(result =>{
                     if(result.data.status)
@@ -92,7 +104,6 @@ const index = () => {
                 .catch(err => console.log(err)) 
             } else
             {
-                console.log(result.data.Error)
                 setEmailError(true);
                 setAlerta(true);
                 setAlertaMensaje(result.data.Error);
@@ -145,39 +156,44 @@ const index = () => {
                                 crossOrigin="anonymous" 
                                 label="Tu(s) Nombre(s)" 
                                 onChange={(e) => setDatosBasicos({...datosBasicos, nombre: e.target.value})}
+                                name='nombre'
                             />
-                            <div className='flex gap-4'>
+                            <div className='flex flex-col md:flex-row gap-4'>
                                 <Input 
                                     crossOrigin="anonymous" 
                                     label="Tu Apellido Paterno"
                                     onChange={(e) => setDatosBasicos({...datosBasicos, apellidoPaterno: e.target.value})} 
+                                    name='apellidoPaterno'
                                 />
                                 <Input 
                                     crossOrigin="anonymous" 
                                     label="Tu Apellido Materno" 
                                     onChange={(e) => setDatosBasicos({...datosBasicos, apellidoMaterno: e.target.value})}
+                                    name='apellidoMaterno'
                                 />
                             </div>
 
-                            <div className='flex gap-4'>
+                            <div className='flex flex-col md:flex-row gap-4'>
                                 <Input 
                                     crossOrigin="anonymous" 
                                     value={datosBasicos.direccion}
                                     label="Dirección" 
                                     onChange={(e) => setDatosBasicos({...datosBasicos, direccion: e.target.value})}
+                                    name='direccion'
                                 />
                                 <Input 
                                     type='date'
                                     crossOrigin="anonymous" 
                                     label="Fecha de Nacimiento" 
                                     onChange={(e) => setDatosBasicos({...datosBasicos, fechaNacimiento: e.target.value})}
+                                    name='fechaNacimiento'
                                 />
                             </div>
 
-                            <div className='flex gap-2'>
+                            <div className='flex flex-col md:flex-row gap-2'>
 
                                     <Input 
-                                        type='number'
+                                        type='text'
                                         crossOrigin="anonymous" 
                                         value={datosBasicos.ci}
                                         label="Carnet de Identidad" 
@@ -185,6 +201,7 @@ const index = () => {
                                         onFocus={() => setPlaceholderVisible(true)}
                                         onBlur={() => setPlaceholderVisible(false)}
                                         onChange={(e) => setDatosBasicos({...datosBasicos, ci: e.target.value})}
+                                        name='ci'
                                     />
                                     {/* <Select 
                                         placeholder className='w-[50px]'
@@ -204,11 +221,14 @@ const index = () => {
                                         crossOrigin="anonymous" 
                                         label="Celular" 
                                         onChange={(e) => setDatosBasicos({...datosBasicos, celular: e.target.value})}
+                                        name='celular'
                                     />
 
                                     <Select 
                                         placeholder className='w-[150px]'                                      
-                                        onChange={(e) => handleSelectChange(e)}
+                                        onChange={(e: any) => handleSelectChange(e)}
+                                        label='Genero'
+                                        name='genero'
                                     >
                                             {genero.map(item => (
                                                 <Option key={item.id} value={item.value}>
@@ -226,17 +246,20 @@ const index = () => {
                                     crossOrigin="anonymous" 
                                     label="Email" 
                                     onChange={(e) => setDatosBasicos({...datosBasicos, email: e.target.value})}
+                                    name='email'
                                 />                            
                             </div>
                         
                         </div>
 
                         <Typography color="gray" className="mt-4 font-normal" placeholder >
-                        *Se le enviara un enlace a su correo electronico para completar el registro
-                        
+                        *Se le enviara un enlace a su correo electronico para completar el registro                      
                         </Typography>
                     
-                    <Button className="mt-6 text-white bg-cyan-900 hover:bg-cyan-600 flex gap-2 justify-center text-base" fullWidth placeholder onClick={handleClick}>
+                    <Button 
+                        className="mt-6 text-white bg-cyan-900 hover:bg-cyan-600 flex gap-2 justify-center text-base" fullWidth placeholder onClick={handleClick}
+                        name= 'Enviar'
+                    >
                             <p>
                             Enviar
                             </p>
@@ -257,4 +280,4 @@ const index = () => {
   )
 }
 
-export default index
+export default Index

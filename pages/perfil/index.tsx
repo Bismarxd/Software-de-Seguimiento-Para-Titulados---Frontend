@@ -24,11 +24,13 @@ const Index = () => {
     fechaVencimiento: '',
     salario: '',
     telefono: '',
-    ubicacion: ''
+    ubicacion: '',
+    estado: 0,
+    activo: 0,
   }]);
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/ofertas/obtener_ofertas`)
+    axios.get(`${process.env.NEXT_PUBLIC_URL}/ofertas/obtener_ofertas`)
       .then(result => {
         if (result.data.status) {
           setDatosTrabajo(result.data.result);
@@ -37,7 +39,7 @@ const Index = () => {
       .catch(err => console.log(err));
   }, []);
 
-  const handleVerMasClick = (id) => {
+  const handleVerMasClick = (id: any) => {
     if (selectedOfertaId === id) {
       setSelectedOfertaId(null); // Cerrar el modal si ya está abierto
     } else {
@@ -45,76 +47,97 @@ const Index = () => {
     }
   };
 
+  // Define las URLs de las imágenes de fondo
+  const backgroundImages = [
+    'Imagenes Perfil/fondoPerfil2.jpg',
+    'Imagenes Perfil/fondoPerfil1.jpg',
+    'Imagenes Perfil/fondoPerfil1.jpg'
+  ];
+
   return (
     <div className='w-full h-screen object-cover flex'>
-      <DashboardPerfil />
-      <div className='grid grid-cols-1 gap-5 m-3 ml-96'>
-        {datosTrabajo.map(item => (
-          <div key={item.id}>
-            <Card placeholder className="mt-6 w-auto">
-              <CardBody className='m-3' placeholder>
-                <FaPaperclip className='text-3xl m-4' />
-                <Typography variant="h5" color="blue-gray" className="mb-2" placeholder>
-                  {item.titulo}
-                </Typography>
-                <div className='grid grid-cols-2 gap-2'>
-                  <Typography placeholder variant="h6" color="blue-gray" className="mb-2 bg-sky-800 text-white rounded-xl flex justify-between">
-                    <CiCalendarDate className='text-white text-xl ml-2' />
-                    <label htmlFor="" className='mr-3'>
-                      {item.fechaVencimiento}
+      <DashboardPerfil>
+      <div className='grid grid-cols-1 gap-5 m-3'>
+          {datosTrabajo.filter(item => item.estado === 1 && item.activo === 1).map((item, index) => (
+            <div key={item.id}>
+              <Card
+                placeholder
+                className="mt-6 w-auto text-white"
+                style={{
+                  backgroundImage: `url('fondo5.jpg')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
+              >
+                <CardBody className='m-3 text-xs' placeholder>
+                  <FaPaperclip className='text-3xl m-4' />
+                  <Typography color="blue-gray" className="mb-2 text-[10px] md:text-xl" placeholder>
+                    {item.titulo}
+                  </Typography>
+                  <div className='grid grid-cols-2 gap-2'>
+                    <Typography placeholder variant="h6" color="blue-gray" className="mb-2 bg-sky-800 bg-opacity-20 text-white rounded-xl flex justify-between">
+                      <CiCalendarDate className='text-white text-xs md:text-xl ml-2' />
+                      <Typography placeholder className='hidden md:flex'>Fecha Limite:</Typography>
+                      <label htmlFor="" className='mr-3 text-[8px] md:text-xl'>
+                        {item.fechaVencimiento}
+                      </label>
+                    </Typography>
+                    <Typography placeholder variant="h6" color="blue-gray" className="mb-2 text-white bg-green-600 bg-opacity-20  rounded-xl flex justify-between">
+                      <MdOutlineMoneyOffCsred className='text-white text-xs md:text-xl ml-2' />
+                      <Typography placeholder className='hidden md:flex'>Salario:</Typography>
+                      <label htmlFor="" className='mr-3 text-[8px] md:text-xl'>
+                        {item.salario} Bs.
+                      </label>
+                    </Typography>
+                    <Typography placeholder variant="h6" color="blue-gray" className="mb-2 text-white bg-indigo-800 bg-opacity-20 rounded-xl flex justify-between">
+                      <FaPhoneVolume className='text-white text-xs md:text-xl ml-2 '/>
+                      <Typography placeholder className='hidden md:flex'>Contacto:</Typography>
+                      <label htmlFor="" className='mr-3 text-[8px] md:text-xl'>
+                        {item.telefono}
+                      </label>
+                    </Typography>
+                  </div>
+                  <Typography placeholder variant="h6" color="blue-gray" className="mb-2 text-white bg-slate-500 bg-opacity-20 rounded-xl flex justify-between">
+                    <FaLocationDot className='text-white text-xs md:text-xl ml-2'/>
+                    <Typography placeholder className='hidden md:flex'>Ubicación:</Typography>
+                    <label htmlFor="" className='mr-3 text-xs md:text-xl'>
+                      {item.ubicacion}
                     </label>
                   </Typography>
-                  <Typography placeholder variant="h6" color="blue-gray" className="mb-2 text-white bg-green-600 rounded-xl flex justify-between">
-                    <MdOutlineMoneyOffCsred className='text-white text-xl ml-2' />
-                    <label htmlFor="" className='mr-3'>
-                      {item.salario} Bs.
-                    </label>
-                  </Typography>
-                  <Typography placeholder variant="h6" color="blue-gray" className="mb-2 text-white bg-indigo-800 rounded-xl flex justify-between">
-                    <FaPhoneVolume className='text-white text-xl ml-2' />
-                    <label htmlFor="" className='mr-3'>
-                      {item.telefono}
-                    </label>
-                  </Typography>
-                </div>
-                <Typography placeholder variant="h6" color="blue-gray" className="mb-2 text-white bg-slate-500 rounded-xl flex justify-between">
-                  <FaLocationDot className='text-white text-xl ml-2' />
-                  <label htmlFor="" className='mr-3'>
-                    {item.ubicacion}
-                  </label>
-                </Typography>
-                {selectedOfertaId !== item.id && (
-                  <Typography placeholder>
-                    {item.descripcion.slice(0, 30)}
-                    {item.descripcion.length > 30 ? '...' : ''}
-                  </Typography>
-                )}
-              </CardBody>
-              <CardFooter placeholder className="pt-0">
-                <Button
-                  placeholder
-                  size="sm"
-                  variant="text"
-                  className="flex items-center gap-2"
-                  onClick={() => handleVerMasClick(item.id)}
-                >
-                  {selectedOfertaId === item.id ? 'Ver Menos' : 'Ver Más'}
-                  <FaLongArrowAltRight />
-                </Button>
-                <Collapse open={selectedOfertaId === item.id}>
-                  <Card placeholder className="my-4 mx-auto w-8/12 p-2">
-                    <CardBody placeholder style={{ overflowWrap: 'break-word' }}>
-                      <Typography placeholder>
-                        {item.descripcion}
-                      </Typography>
-                    </CardBody>
-                  </Card>
-                </Collapse>
-              </CardFooter>
-            </Card>
-          </div>
-        ))}
-      </div>
+                  {selectedOfertaId !== item.id && (
+                    <Typography placeholder>
+                      {item.descripcion.slice(0, 30)}
+                      {item.descripcion.length > 30 ? '...' : ''}
+                    </Typography>
+                  )}
+                </CardBody>
+                <CardFooter placeholder className="pt-0">
+                  <Button
+                    placeholder
+                    size="sm"
+                    variant="text"
+                    className="flex text-white items-center gap-2"
+                    onClick={() => handleVerMasClick(item.id)}
+                  >
+                    {selectedOfertaId === item.id ? 'Ver Menos' : 'Ver Más'}
+                    <FaLongArrowAltRight />
+                  </Button>
+                  <Collapse open={selectedOfertaId === item.id}>
+                    <Card placeholder className="my-4 mx-auto w-8/12 p-2 bg-opacity-10">
+                      <CardBody placeholder style={{ overflowWrap: 'break-word' }}>
+                        <Typography placeholder className='text-xs md:text-xl text-white'>
+                          {item.descripcion}
+                        </Typography>
+                      </CardBody>
+                    </Card>
+                  </Collapse>
+                </CardFooter>
+              </Card>
+            </div>
+          ))}
+        </div>
+      </DashboardPerfil>
+      
     </div>
   );
 };

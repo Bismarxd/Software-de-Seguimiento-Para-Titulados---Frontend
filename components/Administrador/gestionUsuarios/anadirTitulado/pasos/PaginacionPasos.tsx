@@ -1,10 +1,5 @@
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
-import Link from 'next/link'
-import Image from 'next/image'
 import Router, { useRouter } from 'next/router'
-
-
-
 
 type Props = {
     columnas: GridColDef[],
@@ -15,11 +10,6 @@ type Props = {
 }
 
 const PaginacionPasos = (props: Props) => {
-
-    console.log(props.filas);
-    
-    
-
     const router = useRouter()
 
 
@@ -32,8 +22,6 @@ const PaginacionPasos = (props: Props) => {
         if (confirmar) {
             
         }
-        console.log(id);
-        
     }
     
 

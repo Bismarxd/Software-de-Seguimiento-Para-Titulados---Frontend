@@ -19,7 +19,7 @@ const ModalEditarInvestigacion = (props: Props) => {
         label: ''
       }])
 
-    const handleSelectChangeTipo = (value: string) => {
+    const handleSelectChangeTipo = (value: any) => {
     setDatosEditados({ ...datosEditados, publicacionId: value });
     };
     
@@ -28,15 +28,13 @@ const ModalEditarInvestigacion = (props: Props) => {
     const [estadosLaboral, setEstadosLaboral] = useState([])
 
     const [datosEditados, setDatosEditados] = useState(props.investigacion)
-    console.log(datosEditados)
-
     useEffect(() => {
 
         //traer las publicaciones
-        axios.get('http://localhost:8000/titulado/obtener_publicaciones')
+        axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/obtener_publicaciones`)
         .then(result => {
         if (result.data.status) {
-            const datosPublicacion = [ {value: "", label: ""}, ...result.data.result.map((item) => ({
+            const datosPublicacion = [ {value: "", label: ""}, ...result.data.result.map((item: any) => ({
                 value: item.id,
                 label: item.tipoPublicacion
             }))]
@@ -50,20 +48,27 @@ const ModalEditarInvestigacion = (props: Props) => {
     
       }, [])
 
-      const handleClick = (e: React.FormEvent<HTMLFormElement>) => {
+      const handleClick: React.MouseEventHandler<HTMLButtonElement> | undefined = (e) => {
         e.preventDefault();
          // Verificar si algún campo está vacío
-      // const camposVacios = Object.entries(datosEditados).filter(([key, value]) => value === "");
-    
-      // if (camposVacios.length > 0) {
-      //     setAlerta(true);
-      //     setAlertaMensaje(`Los siguientes campos están vacíos: ${camposVacios.map(([key]) => key).join(", ")}`);
-      //     setTimeout(() => {
-      //       setAlerta(false)
-      //     }, 5000)
-      //     return; // Detener la función si hay campos vacíos
-      // }
-        axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/editar_investigacion_titulado/${datosEditados.investigacionId}`, datosEditados)
+        const camposVacios = Object.entries(datosEditados).filter(([key, value]) => value === "");
+        
+        if (camposVacios.length > 0) {
+            setAlerta(true);
+            setAlertaMensaje(`Los siguientes campos están vacíos: ${camposVacios.map(([key]) => key).join(", ")}`);
+            setTimeout(() => {
+                setAlerta(false)
+            }, 5000)
+            return; // Detener la función si hay campos vacíos
+        }
+
+        const user = localStorage.getItem('userId');
+        // Agregar el usuario a los datos editados
+        const datosEditadosConUsuario = {
+            ...datosEditados,
+            adminId: user // Asegúrate de tener un identificador válido del usuario
+        };
+        axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/editar_investigacion_titulado/${datosEditados.investigacionId}`, datosEditadosConUsuario)
         .then(result => {
             if (result.data.status) {
               

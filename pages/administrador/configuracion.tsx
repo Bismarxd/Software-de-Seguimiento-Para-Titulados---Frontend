@@ -9,8 +9,9 @@ import Stack from '@mui/material/Stack';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Result } from 'postcss';
+import { Typography } from '@mui/material';
 
-const configuracion = () => {
+const Configuracion = () => {
 
    const [administrador, setAdministrador] = useState({
     nombre: '',
@@ -54,8 +55,8 @@ const configuracion = () => {
 
     },[])
 
-    const handleSelectChange = (value: string) => {
-        setDatosEditados({ ...datosEditados, sexo: value });
+    const handleSelectChange = (value: string | undefined) => {
+        setDatosEditados({ ...datosEditados, sexo: value || ''});
       };
 
       const handleEditarDatos = () => {
@@ -76,6 +77,25 @@ const configuracion = () => {
       }
 
       const handlePassword = () => {
+        if(password.password !== password.repeatPassword)
+            {
+                setAlerta(true)
+                setAlertaMensaje('Las contraseñas no conciden')
+                setTimeout(() => {
+                    setAlerta(false)
+                }, 3000);
+                return
+            }
+        
+        if(password.password === '')
+            {
+                setAlerta(true)
+                setAlertaMensaje('La contraseña no puede estar vacia')
+                setTimeout(() => {
+                    setAlerta(false)
+                }, 3000);
+                return
+            }
         axios.put(`${process.env.NEXT_PUBLIC_URL}/administradores/editar_password_administardor/${datosEditados.usuarioId}`, password)
         .then(result => {
             if(result.data.status)
@@ -96,7 +116,6 @@ const configuracion = () => {
         }).catch(err => console.log(err));
       }
 
-    console.log(datosEditados)
     
   return (
     <body className='bg-menuColor1'>
@@ -191,17 +210,16 @@ const configuracion = () => {
 
                 <div className='flex gap-3'>
                     <label htmlFor="" className='text-zinc-600 m-5'>Cambiar Contraseña</label>
-                    
-                        <Switch 
-                            color='blue'
-                            crossOrigin="anonymous" 
-                            checked={mostrarDatosUsuario} 
-                            onChange={handleSwitchChange}  
-                            className='ml-5 label:m-5'                              
-                            label="(Habilitar para editar el usuario)"
-                        />
-                    
-                    
+                            <Switch 
+                                color='blue'
+                                crossOrigin="anonymous" 
+                                checked={mostrarDatosUsuario} 
+                                onChange={handleSwitchChange}  
+                                className='ml-5 label:m-5 bg-blue-900'                              
+                            />
+                     
+                    <label htmlFor="" className='text-zinc-600 m-5'>(Habilitar para cambiar la contraseña)</label>
+   
                 </div>
                 
                 {mostrarDatosUsuario && (
@@ -226,6 +244,7 @@ const configuracion = () => {
                                 crossOrigin="anonymous" 
                                 label='Repetir Password'
                                 variant="standard" 
+                                onChange={e => setPassword({...password, repeatPassword: e.target.value})}
                                 type='password'                         
                                 className=' placeholder:text-slate-500'
                             />
@@ -249,4 +268,4 @@ const configuracion = () => {
   )
 }
 
-export default configuracion
+export default Configuracion

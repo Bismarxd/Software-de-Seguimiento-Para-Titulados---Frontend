@@ -39,7 +39,7 @@ const AreaTrabajo = () => {
     <div className='flex items-center'>
 
         <Card className="w-auto h-auto" placeholder>
-                    <Typography>Formas de Trabajo</Typography>
+                    <Typography>Áreas de Trabajo</Typography>
                     <List placeholder className='mt-3'>
                         <ListItem placeholder>
                         Psicología Educativa

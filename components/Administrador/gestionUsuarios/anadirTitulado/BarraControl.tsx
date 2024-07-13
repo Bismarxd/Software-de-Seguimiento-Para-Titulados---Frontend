@@ -16,7 +16,7 @@ interface Props {
 
 const BarraControl = ({pasos, pasoActual}: Props) => {
 
-    const [nuevoPaso, setNuevoPaso] = useState([])
+    const [nuevoPaso, setNuevoPaso] = useState<any>([])
     const pasoRef = useRef<any>(0);
 
     const actualizarPaso = (pasoNumero: number, pasos: []) => {
@@ -67,14 +67,14 @@ const BarraControl = ({pasos, pasoActual}: Props) => {
                 selected: index === 0 ? true : false
             })
         );
-
+ 
         pasoRef.current = estadoPaso;
         const current: any = actualizarPaso(pasoActual - 1, pasoRef.current)
         setNuevoPaso(current);
 
     }, [pasos, pasoActual])
 
-    const mostrarPasos = nuevoPaso.map((paso, index) => {
+    const mostrarPasos = nuevoPaso.map((paso: any, index: any) => {
         return (
             (
                 <div 

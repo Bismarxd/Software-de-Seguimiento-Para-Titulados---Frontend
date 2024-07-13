@@ -74,10 +74,10 @@ const ModalEditarDatosSecundarios = ({setModalEditar, datos}: Props) => {
 
   useEffect(() => {
        //traer los grados academicos
-       axios.get('http://localhost:8000/titulado/grados_academicos')
+       axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/grados_academicos`)
        .then(result => {
        if (result.data.status) {
-           const datosGrados = [ {value: "", label: ""}, ...result.data.result.map((item) => ({
+           const datosGrados = [ {value: "", label: ""}, ...result.data.result.map((item: any) => ({
                value: item.id,
                label: item.tituloGradoAcademico
            }))]
@@ -89,7 +89,7 @@ const ModalEditarDatosSecundarios = ({setModalEditar, datos}: Props) => {
        }).catch(err => console.log(err))
 
        //traer las modaliaes de titulacion
-       axios.get('http://localhost:8000/titulado/modalidades_titulacion')
+       axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/modalidades_titulacion`)
        .then(result => {
        if (result.data.status) {
            const datosModalidad= [ {value: "", label: ""}, ...result.data.result.map((item:ModalidadTitulacion) => ({
@@ -105,7 +105,7 @@ const ModalEditarDatosSecundarios = ({setModalEditar, datos}: Props) => {
 
        
        //traer las areas de trabajo
-       axios.get('http://localhost:8000/titulado/areas_trabajo')
+       axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/areas_trabajo`)
        .then(result => {
        if (result.data.status) {
            const datosAreas = [ {value: "", label: ""}, ...result.data.result.map((item: AreaTrabajo) => ({
@@ -120,7 +120,7 @@ const ModalEditarDatosSecundarios = ({setModalEditar, datos}: Props) => {
        }).catch(err => console.log(err))
 
        //traer las formas de trabajo
-       axios.get('http://localhost:8000/titulado/formas_trabajo')
+       axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/formas_trabajo`)
        .then(result => {
        if (result.data.status) {
            const datosFormas = [ {value: "", label: ""}, ...result.data.result.map((item: FormaTrabajo) => ({
@@ -135,11 +135,18 @@ const ModalEditarDatosSecundarios = ({setModalEditar, datos}: Props) => {
        }).catch(err => console.log(err))
   })
 
-  const handleClick = (e) => {
+  const handleClick = (e: any) => {
     e.preventDefault()
     const {url} = router.query
 
-    axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/editar_datos_titulado/${url}`, datosEditados)
+    const user = localStorage.getItem('userId');
+    // Agregar el usuario a los datos editados
+   const datosEditadosConUsuario = {
+       ...datosEditados,
+       adminId: user // Asegúrate de tener un identificador válido del usuario
+   };
+
+    axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/editar_datos_titulado/${url}`, datosEditadosConUsuario)
     .then(result => {
       if(result.data.status)
         {
@@ -216,7 +223,7 @@ const ModalEditarDatosSecundarios = ({setModalEditar, datos}: Props) => {
             <Select 
               placeholder 
               value={datosEditados.tituloGradoAcademico}                                    
-              onChange={(value) => setDatosEditados({...datosEditados, gradoAcademicoId: value})}
+              onChange={(value: any) => setDatosEditados({...datosEditados, gradoAcademicoId: value})}
               name="tituloGradoAcademico"  
             >
                   {gradosAcademicos.map(item => (
@@ -233,7 +240,7 @@ const ModalEditarDatosSecundarios = ({setModalEditar, datos}: Props) => {
             <Select 
               placeholder 
               value={datosEditados.tituloModalidadTitulacion}                                    
-              onChange={(value) => setDatosEditados({...datosEditados, modalidadTitulacionId: value})}
+              onChange={(value: any) => setDatosEditados({...datosEditados, modalidadTitulacionId: value})}
               name="modalidadTitulacionId"  
             >
                   {modalidadesTitulacion.map(item => (
@@ -250,7 +257,7 @@ const ModalEditarDatosSecundarios = ({setModalEditar, datos}: Props) => {
             <Select 
               placeholder 
               value={datosEditados.tituloAreaTrabajo}                                    
-              onChange={(value) => setDatosEditados({...datosEditados, areaTrabajoId: value})}
+              onChange={(value: any) => setDatosEditados({...datosEditados, areaTrabajoId: value})}
               name="areaTrabajoId"  
             >
                   {areasTrabajo.map(item => (
@@ -267,7 +274,7 @@ const ModalEditarDatosSecundarios = ({setModalEditar, datos}: Props) => {
             <Select 
               placeholder 
               value={datosEditados.tituloFormaTrabajo}                                    
-              onChange={(value) => setDatosEditados({...datosEditados, formaTrabajoId: value})}
+              onChange={(value: any) => setDatosEditados({...datosEditados, formaTrabajoId: value})}
               name="formaTrabajoId"  
             >
                 {formaTrabajo.map(item => (

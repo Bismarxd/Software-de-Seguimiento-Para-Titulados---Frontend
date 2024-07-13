@@ -10,7 +10,7 @@ type Props = {
   setModalEditar: React.Dispatch<React.SetStateAction<boolean>>,
   produccion: any
 }
-
+ 
 const ModalProduccionIntelectualEditar = (props: Props) => {
   
   const [alerta, setAlerta] = useState(false)
@@ -27,21 +27,21 @@ const ModalProduccionIntelectualEditar = (props: Props) => {
 
   const [datosEditados, setDatosEditados] = useState(props.produccion)
 
-   const handleSelectChangeTipo = (value: string) => {
+   const handleSelectChangeTipo = (value: any) => {
     setDatosEditados({ ...datosEditados, publicacionId: value });
   };
 
-  const handleSelectChangeForma = (value: string) => {
+  const handleSelectChangeForma = (value: any) => {
     setDatosEditados({ ...datosEditados, formaTrabajoProduccionId: value });
   };
   
   useEffect(() => {
 
     //traer las publicaciones
-    axios.get('http://localhost:8000/titulado/obtener_publicaciones')
+    axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/obtener_publicaciones`)
     .then(result => {
     if (result.data.status) {
-        const datosPublicacion = [ {value: "", label: ""}, ...result.data.result.map((item) => ({
+        const datosPublicacion = [ {value: "", label: ""}, ...result.data.result.map((item: any) => ({
             value: item.id,
             label: item.tipoPublicacion
         }))]
@@ -53,10 +53,10 @@ const ModalProduccionIntelectualEditar = (props: Props) => {
     }).catch(err => console.log(err))
 
     //traer las forma de trabajo
-    axios.get('http://localhost:8000/titulado/obtener_forma_trabajo')
+    axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/obtener_forma_trabajo`)
     .then(result => {
     if (result.data.status) {
-        const datosFormaTrabajo = [ {value: "", label: ""}, ...result.data.result.map((item) => ({
+        const datosFormaTrabajo = [ {value: "", label: ""}, ...result.data.result.map((item: any) => ({
             value: item.id,
             label: item.nombreFormaTrabajoProduccion
         }))]
@@ -70,20 +70,27 @@ const ModalProduccionIntelectualEditar = (props: Props) => {
   }, [])
 
 
-  const handleClick = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> | undefined = (e) => {
     e.preventDefault();
      // Verificar si algún campo está vacío
-  // const camposVacios = Object.entries(datosEditados).filter(([key, value]) => value === "");
+    const camposVacios = Object.entries(datosEditados).filter(([key, value]) => value === "");
 
-  // if (camposVacios.length > 0) {
-  //     setAlerta(true);
-  //     setAlertaMensaje(`Los siguientes campos están vacíos: ${camposVacios.map(([key]) => key).join(", ")}`);
-  //     setTimeout(() => {
-  //       setAlerta(false)
-  //     }, 5000)
-  //     return; // Detener la función si hay campos vacíos
-  // }
-    axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/editar_produccion_titulado/${datosEditados.produccionId}`, datosEditados)
+    if (camposVacios.length > 0) {
+        setAlerta(true);
+        setAlertaMensaje(`Los siguientes campos están vacíos: ${camposVacios.map(([key]) => key).join(", ")}`);
+        setTimeout(() => {
+          setAlerta(false)
+        }, 5000)
+        return; // Detener la función si hay campos vacíos
+    }
+
+    const user = localStorage.getItem('userId');
+        // Agregar el usuario a los datos editados
+        const datosEditadosConUsuario = {
+            ...datosEditados,
+            adminId: user // Asegúrate de tener un identificador válido del usuario
+        };
+    axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/editar_produccion_titulado/${datosEditados.produccionId}`, datosEditadosConUsuario)
     .then(result => {
         if (result.data.status) {
           
@@ -163,7 +170,6 @@ const ModalProduccionIntelectualEditar = (props: Props) => {
                 </Select>
               </div>
               
-
               <div>
                 <Typography placeholder>Forma de Trabajo</Typography>
                 <Select 

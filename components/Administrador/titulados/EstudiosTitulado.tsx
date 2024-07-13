@@ -11,20 +11,23 @@ import ModalAddEstudioPostGrado from './EstudiosPostGrado/ModalAddEstudioPostGra
 import ModalEditarEstudioPostGrado from './EstudiosPostGrado/ModalEditarEstudioPostGrado';
 import ModalVerEstudioPostGrado from './EstudiosPostGrado/ModalVerEstudioPostGrado';
 
-type PropsProduccionesIntelectuales = {
-    aInicioPostGrado: "",
-    tituloCursoPostGrado: "",
-    modalidadGraduacionPostGrado: "",
-    aGraduacionPostGrado: "",
-    gradoAcademicoPostGrado: "",
-    tipoEstudioPostGrado: "",
-    tituloTrabajoPostGrado: "",
-    tituladoId: "",
-    titulo: ""
-}
+type PropsEstudioPostGrado = {
+    id: number;
+    aInicioPostGrado: string;
+    tituloCursoPostGrado: string;
+    modalidadGraduacionPostGrado: string;
+    aGraduacionPostGrado: string;
+    gradoAcademicoPostGrado: string;
+    tipoEstudioPostGrado: string;
+    tituloTrabajoPostGrado: string;
+    titulo: string;
+};
+type PropsEstudiosTitulado = {
+    estudiosPostGrado: PropsEstudioPostGrado[];
+    setEstudiosPostGrado: (estudios: PropsEstudioPostGrado[]) => void;
+};
 
-
-const EstudiosTitulado = ({estudiosPostGrado}: PropsProduccionesIntelectuales) => {
+const EstudiosTitulado: React.FC<PropsEstudiosTitulado> = ({ estudiosPostGrado, setEstudiosPostGrado }) => {
 
     const router = useRouter();
     const { url } = router.query;
@@ -65,7 +68,10 @@ const EstudiosTitulado = ({estudiosPostGrado}: PropsProduccionesIntelectuales) =
             confirmButtonText: "Si, eliminar!"
           }).then((result) => {
             if (result.isConfirmed) {
-                axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_estudio/${id}`)
+                const userId = localStorage.getItem('userId');
+                axios.delete(`${process.env.NEXT_PUBLIC_URL}/titulado/eliminar_estudio/${id}`,{
+                    data:{adminId:userId}
+                })
                 .then(result => {
                     if (result.data.status) {
                         toast.error('Estudio PostGrado Eliminado Correctamente', {                     
@@ -83,6 +89,15 @@ const EstudiosTitulado = ({estudiosPostGrado}: PropsProduccionesIntelectuales) =
           });
 
         
+    }
+
+    const handleDownload = (titulo: string) => {
+        if (titulo) {
+            const url = `${process.env.NEXT_PUBLIC_URL}/titulos/${titulo}`;
+            window.open(url, '_blank');
+        } else {
+            console.log('Error: No hay título para abrir');
+        }
     }
 
 
@@ -165,6 +180,24 @@ const EstudiosTitulado = ({estudiosPostGrado}: PropsProduccionesIntelectuales) =
                                         className='text-green-600 text-xl m-4'
                                     />
                                 </div>
+                                
+                                {estudio.titulo ?
+                                 <div 
+                                 className='hover:cursor-pointer flex items-center justify-center'
+                                 data-tooltip-id='my-tooltip'
+                                 data-tooltip-content="Ver Titulo del Estudio"
+                                 
+                                    >
+                                        <button 
+                                            className='bg-emerald-900 hover:bg-emerald-700 p-2 text-white text-xs rounded-xl'
+                                            onClick={() => handleDownload(estudio.titulo)}
+                                        >
+                                                Ver Titulo
+                                        </button>
+                                    </div> : ''
+                                
+                                }
+                               
                             </div>
                         </td>
                                             
@@ -185,10 +218,9 @@ const EstudiosTitulado = ({estudiosPostGrado}: PropsProduccionesIntelectuales) =
                 modalAdd &&
                 <ModalAddEstudioPostGrado
                     setModalAdd={setModalAdd}
-                    estudiosPostGrado={estudiosPostGrado}
                     id={url}
                 />
-            }
+            } 
             {
                 modalEditar &&
                 <ModalEditarEstudioPostGrado

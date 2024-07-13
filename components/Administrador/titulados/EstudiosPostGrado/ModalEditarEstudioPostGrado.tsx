@@ -9,7 +9,7 @@ type Props = {
     setModalEditar: React.Dispatch<React.SetStateAction<boolean>>,
     estudio: any
   }
-
+ 
 const ModalEditarEstudioPostGrado = (props: Props) => {
     console.log(props.estudio)
     const [alerta, setAlerta] = useState(false)
@@ -17,25 +17,32 @@ const ModalEditarEstudioPostGrado = (props: Props) => {
 
     const [datosEditados, setDatosEditados] = useState(props.estudio)
 
-    const handleClick = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleClick: React.MouseEventHandler<HTMLButtonElement> | undefined = (e) => {
         e.preventDefault();
          // Verificar si algún campo está vacío
-      // const camposVacios = Object.entries(datosEditados).filter(([key, value]) => value === "");
+      const camposVacios = Object.entries(datosEditados).filter(([key, value]) => value === "");
     
-      // if (camposVacios.length > 0) {
-      //     setAlerta(true);
-      //     setAlertaMensaje(`Los siguientes campos están vacíos: ${camposVacios.map(([key]) => key).join(", ")}`);
-      //     setTimeout(() => {
-      //       setAlerta(false)
-      //     }, 5000)
-      //     return; // Detener la función si hay campos vacíos
-      // }
-        axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/editar_estudio_titulado/${datosEditados.id}`, datosEditados)
+      if (camposVacios.length > 0) {
+          setAlerta(true);
+          setAlertaMensaje(`Los siguientes campos están vacíos: ${camposVacios.map(([key]) => key).join(", ")}`);
+          setTimeout(() => {
+            setAlerta(false)
+          }, 5000)
+          return; // Detener la función si hay campos vacíos
+      }
+
+        const user = localStorage.getItem('userId');
+        // Agregar el usuario a los datos editados
+        const datosEditadosConUsuario = {
+            ...datosEditados,
+            adminId: user // Asegúrate de tener un identificador válido del usuario
+        };
+        axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/editar_estudio_titulado/${datosEditados.id}`, datosEditadosConUsuario)
         .then(result => {
             if (result.data.status) {
               
               props.setModalEditar(false)  
-              toast.info('Oferta Editada Correctamente', {
+              toast.info('Estudio Editado Correctamente', {
                 autoClose: 2000,
                 onClose: () => window.location.reload()
               })           
@@ -97,20 +104,35 @@ const ModalEditarEstudioPostGrado = (props: Props) => {
                     onChange={e => setDatosEditados({...datosEditados, 'aGraduacionPostGrado': e.target.value})}     
                     name='aGraduacionPostGrado'
                 />
-                <Input 
-                    crossOrigin={'anonimus'}
+                <Select
+                    placeholder
                     label="Grado Academico"
-                    placeholder={props.estudio.gradoAcademicoPostGrado}
-                    onChange={e => setDatosEditados({...datosEditados, 'gradoAcademicoPostGrado': e.target.value})}     
-                    name='gradoAcademicoPostGrado'
-                />
-                <Input 
-                    crossOrigin={'anonimus'}
-                    label="Tipo de Estudio"
-                    placeholder={props.estudio.tipoEstudioPostGrado}
-                    onChange={e => setDatosEditados({...datosEditados, 'tipoEstudioPostGrado': e.target.value})}     
-                    name='tipoEstudioPostGrado'
-                />
+                    onChange={e => setDatosEditados({...datosEditados, 'gradoAcademicoPostGrado': e})}
+                    name="gradoAcademicoPostGrado"
+                    // onChange={handleChange}
+                    // titulo='Grado Academico'
+                    // type='text'
+                    // value={gradoAcademico}
+                    // name='gradoAcademicoPostGrado'
+                    // placeholder='Ej: Maestría, Doctorado'
+                >
+                    <Option value="maestria">Maestria</Option>
+                    <Option value="doctorado">Doctorado</Option>
+                </Select>
+                <Select
+                    placeholder
+                    label="Tipo de Estudio(*)"             
+                    onChange={e => setDatosEditados({...datosEditados, 'tipoEstudioPostGrado': e})}
+                    name="tipoEstudioPostGrado"
+                >
+                    <Option value="maestria">Maestría</Option>
+                    <Option value="diplomado">Diplomado</Option>
+                    <Option value="especializacion">Especialización</Option>
+                    <Option value="doctorado">Doctorado</Option>
+                    <Option value="post doctorado">Postdoctorado</Option>
+                    <Option value="certificación Profesional">Certificación Profesional</Option>
+                    <Option value="otro">Otro</Option>
+                </Select>
                 <Input 
                     crossOrigin={'anonimus'}
                     label="titulo del trabajo final"

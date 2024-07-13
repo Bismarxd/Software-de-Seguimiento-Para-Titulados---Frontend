@@ -22,8 +22,9 @@ const UltimosUsuarios = () => {
     .then(result => {
         if (result.data.status) {
             const titulados = result.data.result
-              .filter(titulado => titulado.administrador === 0)
-              .sort((a, b) => b.id - a.id);
+              .filter((titulado: any) => titulado.administrador === 0 && titulado.activo === 1)
+              .sort((a: any, b: any) => b.id - a.id)
+              .slice(0, 5);
 
         setDatosTitulados(titulados);
 
@@ -35,17 +36,14 @@ const UltimosUsuarios = () => {
     .catch(err => console.log(err));
 
   }, [])
-
-  console.log(datosTitulados);
-
-  const handleVerDetalles = (id: number) => {
+  const handleVerDetalles = (id: any) => {
     router.push(`/administrador/verTitulado/${id}`)
 }
   
 
   return (
-    <div className='w-full col-span-1 relative lg:h-[70vh] h-[50vh]  p-4 border rounded-xl bg-white overflow-scroll'>
-      <h1>Ultimos Usuarios Añadidos</h1>
+    <div className='w-full col-span-1 relative lg:h-[70vh] h-[50vh]  p-4 border rounded-xl bg-teal-900 overflow-scroll shadow-xl transform transition-transform hover:scale-105'>
+      <h1 className='text-white'>Ultimos Usuarios Añadidos</h1>
       <ul>
         {datosTitulados.map((item) => (
             <li 
@@ -54,7 +52,7 @@ const UltimosUsuarios = () => {
             >
                 <div className='bg-slate-700 rounded-lg p-3'>
                     <Image
-                                src={datosTitulados && item.imagen ? `http://localhost:8000/imagenes/${item.imagen}` : '/public/imagen Login/images.png'}
+                                src={datosTitulados && item.imagen ? `${process.env.NEXT_PUBLIC_URL}/imagenes/${item.imagen}` : '/public/imagen Login/images.png'}
                                 width={50}
                                 height={50}
                                 alt=''

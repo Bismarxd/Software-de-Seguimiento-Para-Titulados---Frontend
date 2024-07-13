@@ -3,7 +3,7 @@ import { Card, Typography } from "@material-tailwind/react";
 import { FaRegEdit } from 'react-icons/fa'
 import ModalEditarDatosSecundarios from './DatosSecundrios/ModalEditarDatosSecundarios';
 
-const ModalDatosSecundariosTitulado = ({datos}) => {
+const ModalDatosSecundariosTitulado = ({datos}: any) => {
     const [modalEditar, setModalEditar] = useState(false)
 
     const handleEditar = () => {

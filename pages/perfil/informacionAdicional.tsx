@@ -35,32 +35,44 @@ type PropsEstudioPostGrado = {
 }
 
 type PropsActividadesLaborales = {
-    aFinalisacionTrabajo: "",
-    aIngresoTrabajo: "",
-    cargoOTareaTrabajo: "",
-    duracionTrabajo: "",
-    estaTrabajando: "",
-    institucionTrabajo: "",
-    tituloEstado: ""
+  id: "",
+  aIngresoTrabajo: "",
+  aFinalisacionTrabajo: "",
+  estaTrabajando: "",
+  cargoOTareaTrabajo: "",
+  duracionTrabajo: "",
+  institucionTrabajo:"",
+  estadoActividadLaboralId: "",
+  tituladoId: "",
+  actividadLaboralId: ''
 }
 
 type PropsInvestigaciones = {
-    aInvestigacion: "",
-    temaInvestigacion: "",
-    institucionInvestigacion: "",
-    tipoPublicacion: "",
+  id: "",
+  aInvestigacion: "",
+  temaInvestigacion: "",
+  institucionInvestigacion: "",
+  publicacionId: "",
+  tituladoId: "",
+  tipoPublicacion: "",
+  investigacionId: ""
 }
 
 type PropsProduccionesIntelectuales = {
-    aProduccion: "",
-    temaProduccion: "",
-    institucionProduccion: "",
-    tipoPublicacion: "",
-    nombreFormaTrabajoProduccion: ""
+  id: "",
+  aProduccion: "",
+  temaProduccion: "",
+  institucionProduccion: "",
+  publicacionId: "",
+  formaTrabajoProduccionId: "",
+  tituladoId: "",
+  tipoPublicacion: "",
+  nombreFormaTrabajoProduccion: "",
+  produccionId: ""
 }
 
 
-const informacionAdicional = () => {
+const InformacionAdicional = () => {
 
   const [openEstudio, setOpenEstudio] = useState(false)
   const [openActividad, setOpenActividad] = useState(false)
@@ -99,25 +111,56 @@ const informacionAdicional = () => {
   const [produccionesIntelectuales, setProduccionesIntelectuales] = useState<PropsProduccionesIntelectuales[]>([])
 
   useEffect(() => {
-    // Obtener el valor del parámetro 'id' de la URL del usuario
-    const userId = localStorage.getItem('userId')
+    const userId = localStorage.getItem('userId');
     
-    axios.get(`http://localhost:8000/titulado/ver_titulado_perfil/`+userId)
-      .then(result => {
-        if (result.data.status) {
-          setDatos(result.data.result[0])
-        }
-      }).catch(err => console.log(err))
+    axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/ver_titulado_perfil/` + userId)
+        .then(result => {
+            if (result.data.status) {
+                setDatos(result.data.result[0]);
+            }
+        })
+        .catch(err => console.log(err));
+}, []);
 
-      axios.get(`http://localhost:8000/titulado/verestudiosPostGrado/`+userId)
-      .then(result => {
-        if (result.data.status) {
-          setEstudiosPostGrado(result.data.result);      
-        }
-      }).catch(err => console.log(err))
+  useEffect(() => {
+    if (datos.tituladoId) {
+        axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/verestudiosPostGrado/` + datos.tituladoId)
+          .then(result => {
+              if (result.data.status) {
+                const estudiosActivos = result.data.result.filter((estudio:any) => estudio.activo === 1);
+                setEstudiosPostGrado(estudiosActivos);
+              }
+          })
+          .catch(err => console.log(err));
 
+        axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/verlaboral/` + datos.tituladoId)
+        .then(result => {
+          if(result.data.status)
+            {
+              const activiadesActivos = result.data.result.filter((actividad:any) => actividad.activo === 1);
+              setActividadesLaborales(activiadesActivos   );      
+            }
+        })
 
-  },[])
+        axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/verinvestigaciones/` + datos.tituladoId)
+        .then(result => {
+          if(result.data.status)
+            {
+              const investigacionesActivos = result.data.result.filter((investigacion:any) => investigacion.activo === 1);
+              setInvestigaciones(investigacionesActivos);    
+            }
+        })
+
+        axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/verproduccionesIntelectuales/` + datos.tituladoId)
+        .then(result => {
+          if(result.data.status)
+            {
+              const produccionesActivos = result.data.result.filter((produccion:any) => produccion.activo === 1);
+                    setProduccionesIntelectuales(produccionesActivos);      
+            }
+        })
+    }
+  }, [datos.tituladoId]);
 
   const abrirEstudios = () => {
     setOpenEstudio(!openEstudio)
@@ -125,13 +168,7 @@ const informacionAdicional = () => {
     setOpenInvestigacion(false)
     setOpenProduccion(false)
 
-    axios.get('http://localhost:8000/titulado/verestudiosPostGrado/' + datos.tituladoId)
-    .then(result => {
-      if(result.data.status)
-        {
-          setEstudiosPostGrado(result.data.result);         
-        }
-    })
+    
   }
 
   const abrirActividad = () => {
@@ -140,13 +177,6 @@ const informacionAdicional = () => {
     setOpenInvestigacion(false)
     setOpenProduccion(false)
 
-    axios.get('http://localhost:8000/titulado/verlaboral/' + datos.tituladoId)
-    .then(result => {
-      if(result.data.status)
-        {
-          setActividadesLaborales(result.data.result);         
-        }
-    })
   }
 
   const abrirInvestigacion = () => {
@@ -155,13 +185,6 @@ const informacionAdicional = () => {
     setOpenActividad(false)
     setOpenProduccion(false)
 
-    axios.get('http://localhost:8000/titulado/verinvestigaciones/' + datos.tituladoId)
-    .then(result => {
-      if(result.data.status)
-        {
-          setInvestigaciones(result.data.result);         
-        }
-    })
   }
 
   const abrirProducciones = () => {
@@ -170,13 +193,6 @@ const informacionAdicional = () => {
     setOpenActividad(false)
     setOpenInvestigacion(false)
 
-    axios.get('http://localhost:8000/titulado/verproduccionesIntelectuales/' + datos.tituladoId)
-    .then(result => {
-      if(result.data.status)
-        {
-          setProduccionesIntelectuales(result.data.result);         
-        }
-    })
   }
 
 
@@ -184,12 +200,12 @@ const informacionAdicional = () => {
   const handleGenerarPDF = () => {
     // Crea un objeto jsPDF
     const pdf = new jsPDF();
-    const imagen = '/Imagenes Login/images.png'
+    const imagen = '/Imagenes Login/margen.jpeg'
     
     // Agrega contenido al PDF
-    pdf.addImage(imagen, 'PNG', 0, 0, 20, 20);
-    pdf.text('CARRERA DE PSICOLOGÍA - INFORME DE TITULADO', 30, 10);
-    pdf.addImage(`http://localhost:8000/imagenes/`+datos?.imagen, 'PNG', 30, 15, 50, 50);
+    pdf.addImage(imagen, 'JPEG', 0, 0, pdf.internal.pageSize.width, 20);
+    
+    pdf.addImage(`${process.env.NEXT_PUBLIC_URL}/imagenes/`+datos?.imagen, 'PNG', 20, 25, 30, 30);
     // pdf.text(`${datos.nombre}`, 40, 30);
 
     //Crear la tabla
@@ -197,14 +213,20 @@ const informacionAdicional = () => {
 
     const data = [
       ['Nombre:',`${datos.nombre}`], 
-      ['Apellido:',`${datos.apellidoPaterno}`], 
+      ['Apellido Paterno:',`${datos.apellidoPaterno}`], 
+      ['Apellido Materno:',`${datos.apellidoMaterno}`], 
       ['Cedula de Identidad:',`${datos.ci}`],
       ['Email:',`${datos.email}`],
       ['Fecha de Nacimiento:',`${datos.fechaNacimiento}`],
       ['Celular:',`${datos.celular}`],
+      ['Año de Ingreso:',`${datos.aIngreso}`],
+      ['Año de Egreso:',`${datos.aEgreso}`],
+      ['Año de Titulación:',`${datos.aTitulacion}`],
+      ['Años de Experiencia Laboral:',`${datos.aExperienciaLaboral}`],
       ['GradoAcademico',`${datos?.tituloGradoAcademico}`],
-      ['Forma de Trabajo Profesional',`${datos?.tituloFormaTrabajo}`],
       ['Modalidad de Titulación',`${datos?.tituloModalidadTitulacion}`],
+      ['Forma de Trabajo Profesional',`${datos?.tituloFormaTrabajo}`],
+      ['Área de Trabajo Profesional',`${datos?.tituloAreaTrabajo}`],
       
     ]
 
@@ -219,7 +241,7 @@ const informacionAdicional = () => {
       startY:60,
       head:[columnas],
       body: data,
-      theme:'striped'
+      theme:'grid'
     })
 
     let finalY = 60;
@@ -229,9 +251,11 @@ const informacionAdicional = () => {
           startY,
           head: [head],
           body: body,
-          theme: 'striped',
+          theme: 'grid',
           didDrawPage: (data) => {
-            finalY = data.cursor.y;
+            if (data.cursor) {
+              finalY = data.cursor.y;
+          }
           }
         });
       };
@@ -244,7 +268,7 @@ const informacionAdicional = () => {
     const columnasEstudios = ['Año de Estudio','Titulo de Curso', 'Modalidad de Graduación', 'Año de Graduación', 'Grado Academico', 'Tipo de Estudio', 'Titulo Trabajo Final']
 
     const datosEstudios = 
-    estudiosPostGrado.map(estudio => (
+      estudiosPostGrado.map(estudio => (
         [`${estudio.aInicioPostGrado}`, `${estudio.tituloCursoPostGrado}`, `${estudio.modalidadGraduacionPostGrado}`, `${estudio.aGraduacionPostGrado}`, `${estudio.gradoAcademicoPostGrado}`, `${estudio.tipoEstudioPostGrado}`, `${estudio.tituloTrabajoPostGrado}`]
       ))
     
@@ -255,11 +279,11 @@ const informacionAdicional = () => {
 
     //para los estudios postgrado
     pdf.text('HISTORIAL LABORAL', 20, finalY + 10);
-    const columnasLaboral = ['Institución','Año de Finalisación', 'Cargo o Tarea', 'Año de Ingreso', 'Esta Trabajando?', 'Estado']
+    const columnasLaboral = ['Institución','Año de Finalisación', 'Cargo o Tarea', 'Año de Ingreso', 'Esta Trabajando?']
 
     const datosLaboral = 
       actividadesLaborales.map(actividad => (
-        [`${actividad.institucionTrabajo}`, `${actividad.aFinalisacionTrabajo}`, `${actividad.cargoOTareaTrabajo}`, `${actividad.aIngresoTrabajo}`, `${actividad.estaTrabajando}`, `${actividad.tituloEstado}`]
+        [`${actividad.institucionTrabajo}`, `${actividad.aFinalisacionTrabajo}`, `${actividad.cargoOTareaTrabajo}`, `${actividad.aIngresoTrabajo}`, `${actividad.estaTrabajando}`]
       ))
     
 
@@ -294,28 +318,28 @@ const informacionAdicional = () => {
 
   
   return (
-    <body 
-      className='w-full h-screen object-cover flex items-center h-scr'     
-  >
+    <div 
+    className='w-full h-screen object-cover flex'   
+    >
     <ToastContainer />
-      <DashboardPerfil/>
-        <div className='flex flex-col m-3 gap-2 ml-96'>
-          <div className='mt-10'>
+      <DashboardPerfil>
+        <div className='flex flex-col m-3 gap-2 '>
+          <div>
             <Button
-              placeholder
-              className=' bg-teal-800 hover:bg-teal-500 text-white rounded-xl ml-40 m-5'
-              onClick={handleGenerarPDF}
+                placeholder=''
+                className=' bg-teal-800 hover:bg-teal-500 text-white m-1 rounded-xl ml-40'
+                onClick={handleGenerarPDF}
             >
-              Generar CV (pdf)
+                Generar Informe (pdf)
             </Button>
           </div>
-          <div className='flex gap-2 m-3'>
-            <Card placeholder className="w-96 ">
+          <div className='flex flex-col md:flex-row gap-2 m-3'>
+            <Card placeholder className="w-96">
               <Card placeholder className="w-96 flex items-center">
               
                 <CardHeader placeholder floated={false} className="h-30">
                 
-                  <Image src={`http://localhost:8000/imagenes/`+datos.imagen} width={100} height={100} alt="profile-picture" />
+                  <Image src={`${process.env.NEXT_PUBLIC_URL}/imagenes/`+datos.imagen} width={100} height={100} alt="profile-picture" />
                 </CardHeader>
                 <CardBody placeholder className="text-center">
                   <Typography placeholder variant="h4" color="blue-gray" className="mb-2">
@@ -409,9 +433,11 @@ const informacionAdicional = () => {
 
         
         </div>
+      </DashboardPerfil>
+      
 
-    </body>
+    </div>
   )
 }
 
-export default informacionAdicional
+export default InformacionAdicional

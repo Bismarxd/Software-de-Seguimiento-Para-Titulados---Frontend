@@ -12,7 +12,9 @@ const TopCards = () => {
     axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/cantidad_titulados`)
       .then(result => {
         if (result.data.status) {
-          setNTitulados(result.data.cantidad)
+          const numeroTitulados = result.data.result
+              .filter((titulados: any) => titulados.activo === 1).length
+          setNTitulados(numeroTitulados)
         }
       })
       .catch(err => console.log(err))
@@ -20,7 +22,9 @@ const TopCards = () => {
     axios.get(`${process.env.NEXT_PUBLIC_URL}/ofertas/cantidad_ofertas`)
     .then(result => {
       if (result.data.status) {
-        setNOfertas(result.data.cantidad)
+        const numeroOfertas = result.data.result
+              .filter((ofertas: any) => ofertas.activo === 1).length
+        setNOfertas(numeroOfertas)
       }
     })
     .catch(err => console.log(err))
@@ -28,41 +32,48 @@ const TopCards = () => {
     axios.get(`${process.env.NEXT_PUBLIC_URL}/administradores/cantidad_administradores`)
     .then(result => {
       if (result.data.status) {
-        setAdministradores(result.data.cantidad)
+          const numeroAdministradores = result.data.result
+                .filter((administradores: any) => administradores.activo === 1).length
+              console.log(numeroAdministradores)
+        setAdministradores(numeroAdministradores)
       }
     })
     .catch(err => console.log(err))
   },[])
-
-  console.log(nAdministradores);
   
 
   return (
+
     <div className='grid lg:grid-cols-5 gap-4 p-4'>
-      <div className='lg:col-span-2 col-span-1 bg-white flex justify-between w-full border p-4 rounded-xl'>
-        <div className='flex flex-col w-full pb-4'>
-            <p className='text-2xl font-bold'>{nTitulados}</p>
-            <p className='text-slate-500'>Titulados</p>
-        </div>
+      <div className='lg:col-span-2 col-span-1 text-white flex justify-between w-full border p-4 rounded-xl bg-red-600 shadow-xl transform transition-transform hover:scale-105'>
+    <div className='flex flex-col w-full pb-4'>
+        <p className='text-2xl font-bold'>{nTitulados}</p>
+        <p className=''>Titulados</p>
+    </div>  
+</div>
 
-      </div>
 
-      <div className='lg:col-span-2 col-span-1 bg-white flex justify-between w-full border p-4 rounded-xl'>
+
+      <div className='lg:col-span-2 col-span-1 bg-yellow-600 text-white flex justify-between w-full border p-4 rounded-xl shadow-xl transform transition-transform hover:scale-105'>
         <div className='flex flex-col w-full pb-4'>
             <p className='text-2xl font-bold'>{nAdministradores}</p>
-            <p className='text-slate-500'>Administradores</p>
+            <p className=''>Administradores</p>
         </div>
 
       </div>
 
-      <div className='bg-white flex justify-between w-full border p-4 rounded-xl'>
+      <div className='bg-green-700 text-white flex justify-between w-full border p-4 rounded-xl shadow-xl transform transition-transform hover:scale-105'>
         <div className='flex flex-col w-full pb-4'>
             <p className='text-2xl font-bold'>{nOfertas}</p>
-            <p className='text-slate-500'>Ofertas Laborales</p>
+            <p className=''>Ofertas Laborales</p>
         </div>
 
       </div>
     </div>
+
+
+
+    
   )
 }
 

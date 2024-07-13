@@ -3,23 +3,31 @@ import { PasoContext } from '@/context/PasoContext'
 import Input from '@/components/Diseño/Input'
 import Select from '@/components/Diseño/Select'
 import axios from 'axios'
-import { log } from 'console'
+
 
 interface GradoAcademico {
     id: string | number,
-    tituloGradoAcademico: string
+    tituloGradoAcademico: string,
+    value: string | number | [];
+    label: string;
 }
 interface AreaTrabajo {
     id: string | number,
-    tituloAreaTrabajo: string
+    tituloAreaTrabajo: string,
+    value: string | number | [];
+    label: string;
 }
 interface ModalidadTitulacion {
     id: string | number,
-    tituloModalidadTitulacion: string
+    tituloModalidadTitulacion: string,
+    value: string | number | [];
+    label: string;
 }
 interface FormaTrabajo {
     id: string | number,
-    tituloFormaTrabajo: string
+    tituloFormaTrabajo: string,
+    value: string | number | [];
+    label: string;
 }
 
 interface Props {
@@ -32,28 +40,29 @@ interface Props {
     areaTrabajoId: number,
     formaTrabajoId: number,
     imagen: string,
+    otro: string
 
 } 
   
   interface PropsContext {
     datosTitulado: Props ,
-    setDatosTitulado: React.Dispatch<React.SetStateAction<Props>>
+    setDatosTitulado: React.Dispatch<React.SetStateAction<Props>>,
+    
   }
 
 const DatosTitulado = () => {
 
-    const {datosTitulado, setDatosTitulado}: PropsContext = useContext(PasoContext)
+    const {datosTitulado, setDatosTitulado}: PropsContext = useContext<any>(PasoContext)
     const [gradosAcademicos, setGradosAcademicos] = useState<GradoAcademico[]>([])
     const [modalidadesTitulacion, setModalidadesTitulacion] = useState<ModalidadTitulacion[]>([])
     const [areasTrabajo, setAreasTrabajo] = useState<AreaTrabajo[]>([])
-    const [formaTrabajo, setFormaTrabajo] = useState<FormaTrabajo[]>([])
+    const [formaTrabajo, setFormaTrabajo] = useState<FormaTrabajo[]>([])  
 
-    console.log(datosTitulado);
-    
+    console.log(datosTitulado)
 
     useEffect(() => {
         //traer los grados academicos
-        axios.get('http://localhost:8000/titulado/grados_academicos')
+        axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/grados_academicos`)
         .then(result => {
         if (result.data.status) {
             const datosGrados = [ {value: "", label: ""}, ...result.data.result.map((item: GradoAcademico) => ({
@@ -68,7 +77,7 @@ const DatosTitulado = () => {
         }).catch(err => console.log(err))
 
         //traer las modaliaes de titulacion
-        axios.get('http://localhost:8000/titulado/modalidades_titulacion')
+        axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/modalidades_titulacion`)
         .then(result => {
         if (result.data.status) {
             const datosModalidad= [ {value: "", label: ""}, ...result.data.result.map((item:ModalidadTitulacion) => ({
@@ -84,7 +93,7 @@ const DatosTitulado = () => {
 
         
         //traer las areas de trabajo
-        axios.get('http://localhost:8000/titulado/areas_trabajo')
+        axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/areas_trabajo`)
         .then(result => {
         if (result.data.status) {
             const datosAreas = [ {value: "", label: ""}, ...result.data.result.map((item: AreaTrabajo) => ({
@@ -99,7 +108,7 @@ const DatosTitulado = () => {
         }).catch(err => console.log(err))
 
         //traer las formas de trabajo
-        axios.get('http://localhost:8000/titulado/formas_trabajo')
+        axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/formas_trabajo`)
         .then(result => {
         if (result.data.status) {
             const datosFormas = [ {value: "", label: ""}, ...result.data.result.map((item: FormaTrabajo) => ({
@@ -218,7 +227,7 @@ const DatosTitulado = () => {
                     name='areaTrabajoId' 
                 />
                 
-                {datosTitulado.areaTrabajoId === '7' && (
+                {datosTitulado.areaTrabajoId === 7 && (
                     <Input
                     titulo='Escriba el area de trabajo'
                     name='otro'
@@ -257,14 +266,14 @@ const DatosTitulado = () => {
                 type="file"
                 accept='image/*' // Permite seleccionar archivos de imagen
                 name='imagen'
-                onChange={(e) => {
+                onChange={(e: any) => {
                     const file = e.target.files[0];
                     // Verificar si se seleccionó un archivo
                     if (file) {
                       setDatosTitulado({...datosTitulado, imagen: file});
                     } else {
                       // Si no se seleccionó ningún archivo, establece la imagen en null o algún valor predeterminado
-                      setDatosTitulado({...datosTitulado, imagen: null});
+                      setDatosTitulado({...datosTitulado, imagen: ''});
                     }
                   }}
                 className='p-1 px-2 appearance-none outline-none w-full text-gray-600'

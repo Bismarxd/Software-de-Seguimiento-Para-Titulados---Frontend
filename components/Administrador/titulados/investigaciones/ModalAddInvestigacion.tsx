@@ -20,20 +20,25 @@ const ModalAddInvestigacion = (props:Props) => {
         label: ''
       }])
 
-    const [datos, setDatos] = useState({})
-    console.log(datos)
+    const [datos, setDatos] = useState({
+        aInvestigacion: '',
+        temaInvestigacion: '',
+        institucionInvestigacion: '',
+        publicacionId: ''
 
-    const handleSelectChangeTipo = (value: string) => {
+    })
+
+    const handleSelectChangeTipo = (value: any) => {
         setDatos({ ...datos, publicacionId: value });
         };
 
     useEffect(() => {
 
         //traer las publicaciones
-        axios.get('http://localhost:8000/titulado/obtener_publicaciones')
+        axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/obtener_publicaciones`)
         .then(result => {
         if (result.data.status) {
-            const datosPublicacion = [ {value: "", label: ""}, ...result.data.result.map((item) => ({
+            const datosPublicacion = [ {value: "", label: ""}, ...result.data.result.map((item: any) => ({
                 value: item.id,
                 label: item.tipoPublicacion
             }))]
@@ -48,19 +53,19 @@ const ModalAddInvestigacion = (props:Props) => {
     
       }, [])
 
-      const handleClick = (e: React.FormEvent<HTMLFormElement>) => {
+      const handleClick: React.MouseEventHandler<HTMLButtonElement> | undefined = (e) => {
         e.preventDefault();
          // Verificar si algún campo está vacío
-      // const camposVacios = Object.entries(datosEditados).filter(([key, value]) => value === "");
-    
-      // if (camposVacios.length > 0) {
-      //     setAlerta(true);
-      //     setAlertaMensaje(`Los siguientes campos están vacíos: ${camposVacios.map(([key]) => key).join(", ")}`);
-      //     setTimeout(() => {
-      //       setAlerta(false)
-      //     }, 5000)
-      //     return; // Detener la función si hay campos vacíos
-      // }
+        const camposVacios = Object.entries(datos).filter(([key, value]) => value === "");
+        
+        if (camposVacios.length > 0) {
+            setAlerta(true);
+            setAlertaMensaje(`Los siguientes campos están vacíos: ${camposVacios.map(([key]) => key).join(", ")}`);
+            setTimeout(() => {
+                setAlerta(false)
+            }, 5000)
+            return; // Detener la función si hay campos vacíos
+        }
         
     
         axios.post(`${process.env.NEXT_PUBLIC_URL}/titulado/add_investigaciones`, {...datos, 'tituladoId':props.id})

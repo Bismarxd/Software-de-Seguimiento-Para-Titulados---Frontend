@@ -43,6 +43,15 @@ const columnas: GridColDef[] = [
       type: "string",
       headerName: "Cargo",
       width: 130,
+    },
+    {
+      field: "tipoAdministrador", 
+      type: "string",
+      headerName: "Tipo de Administrador",
+      width: 130,
+      renderCell: (params) => {
+        return params.value === 0 ? "Principal" : "Normal";
+      },
     }
   ]
 
@@ -54,7 +63,7 @@ const Administradores = () => {
       .then(result => {
         if (result.data.status) {
           // Filtrar los datos para excluir aquellos con id nulo
-          const administradoresFiltrados = result.data.result.filter(admin => admin.id !== null);
+          const administradoresFiltrados = result.data.result.filter((admin: any) => admin.id !== null && admin.activo === 1 && admin.id !== 1);
           setDatosAdministradores(administradoresFiltrados)
         }
       })

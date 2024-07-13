@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react'
 import DashboardPerfil from '@/components/Perfil/DashboardPerfil'
 import { Input, Button, alert, Drawer, Typography, IconButton, Card, Checkbox, Switch } from "@material-tailwind/react";
-import { useRouter } from 'next/router';
 import Select from '@/components/Diseño/Select'
 import Image from 'next/image';
 import Alert from '@mui/material/Alert';
@@ -11,7 +10,6 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css";
-import ModalEstudios from '@/components/Perfil/actualizar/ModalEstudios';
 import ModalAddEstudioPostGrado from '@/components/Administrador/titulados/EstudiosPostGrado/ModalAddEstudioPostGrado';
 import ModalAddActividades from '@/components/Administrador/titulados/ActividadesLaborales/ModalAddActividades';
 import ModalAddInvestigacion from '@/components/Administrador/titulados/investigaciones/ModalAddInvestigacion';
@@ -19,22 +17,35 @@ import ModalProduccionIntelectualAdd from '@/components/Administrador/titulados/
 
 interface GradoAcademico {
   id: string | number,
-  tituloGradoAcademico: string
+  tituloGradoAcademico: string,
+  value: string | number | [];
+  label: string;
 }
 interface AreaTrabajo {
   id: string | number,
-  tituloAreaTrabajo: string
+  tituloAreaTrabajo: string,
+  value: string | number | [];
+  label: string;
 }
 interface ModalidadTitulacion {
   id: string | number,
-  tituloModalidadTitulacion: string
+  tituloModalidadTitulacion: string,
+  value: string | number | [];
+  label: string;
 }
 interface FormaTrabajo {
   id: string | number,
-  tituloFormaTrabajo: string
+  tituloFormaTrabajo: string,
+  value: string | number | [];
+  label: string;
 }
 
-const actualizarInformacion = () => {
+type NuevaImagenState = {
+  imagen: File | null; // Define que la imagen puede ser un File o null
+};
+
+
+const ActualizarInformacion = () => {
 
   
   const [alerta, setAlerta] = useState(false)
@@ -92,7 +103,7 @@ const actualizarInformacion = () => {
     const userId = localStorage.getItem('userId')
 
       //traer al titulado
-    axios.get(`http://localhost:8000/titulado/ver_titulado_perfil/`+userId)
+    axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/ver_titulado_perfil/`+userId)
     .then(result => {
       if (result.data.status) {
         setDatosTitulado(result.data.result[0])
@@ -100,7 +111,7 @@ const actualizarInformacion = () => {
     })
 
      //traer los grados academicos
-     axios.get('http://localhost:8000/titulado/grados_academicos')
+     axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/grados_academicos`)
      .then(result => {
      if (result.data.status) {
          const datosGrados = [ {value: "", label: ""}, ...result.data.result.map((item: GradoAcademico) => ({
@@ -115,7 +126,7 @@ const actualizarInformacion = () => {
      }).catch(err => console.log(err))
 
      //traer las modaliaes de titulacion
-     axios.get('http://localhost:8000/titulado/modalidades_titulacion')
+     axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/modalidades_titulacion`)
      .then(result => {
      if (result.data.status) {
          const datosModalidad= [ {value: "", label: ""}, ...result.data.result.map((item:ModalidadTitulacion) => ({
@@ -131,7 +142,7 @@ const actualizarInformacion = () => {
 
      
      //traer las areas de trabajo
-     axios.get('http://localhost:8000/titulado/areas_trabajo')
+     axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/areas_trabajo`)
      .then(result => {
      if (result.data.status) {
          const datosAreas = [ {value: "", label: ""}, ...result.data.result.map((item: AreaTrabajo) => ({
@@ -146,7 +157,7 @@ const actualizarInformacion = () => {
      }).catch(err => console.log(err))
 
      //traer las formas de trabajo
-     axios.get('http://localhost:8000/titulado/formas_trabajo')
+     axios.get(`${process.env.NEXT_PUBLIC_URL}/titulado/formas_trabajo`)
      .then(result => {
      if (result.data.status) {
          const datosFormas = [ {value: "", label: ""}, ...result.data.result.map((item: FormaTrabajo) => ({
@@ -161,8 +172,6 @@ const actualizarInformacion = () => {
      }).catch(err => console.log(err))
    
   }, [])
-
-  console.log(datosTitulado);
   
   const onClickEnviar = () => {
    
@@ -202,6 +211,25 @@ const actualizarInformacion = () => {
   }
 
   const handlePassword = () => {
+    if(password.password !== password.repeatPassword)
+      {
+          setAlerta(true)
+          setAlertaMensaje('Las contraseñas no conciden')
+          setTimeout(() => {
+              setAlerta(false)
+          }, 3000);
+          return
+      }
+  
+  if(password.password === '')
+      {
+          setAlerta(true)
+          setAlertaMensaje('La contraseña no puede estar vacia')
+          setTimeout(() => {
+              setAlerta(false)
+          }, 3000);
+          return
+      }
     axios.put(`${process.env.NEXT_PUBLIC_URL}/administradores/editar_password_administardor/${datosTitulado.usuarioId}`, password)
     .then(result => {
         if(result.data.status)
@@ -212,15 +240,54 @@ const actualizarInformacion = () => {
                 })                  
             }else
             {
-                setAlerta(true)
-                setAlertaMensaje(result.data.Error)
-                setTimeout(() => {
-                    setAlerta(false)
-                }, 3000);
-                return
+              setAlerta(true)
+              setAlertaMensaje(result.data.Error)
+              setTimeout(() => {
+                  setAlerta(false)
+              }, 3000);
+              return
             }
     }).catch(err => console.log(err));
   }
+
+  //Para actualizar la imagen
+  const [nuevaImagen, setNuevaImagen] = useState<NuevaImagenState>({
+    imagen: null
+  });
+
+const handleSubmit = async (e: any) => {
+  e.preventDefault()
+  const formData: any = new FormData();
+  formData.append('imagen', nuevaImagen.imagen);
+
+  axios.put(`${process.env.NEXT_PUBLIC_URL}/titulado/actualizar_imagen/${datosTitulado.tituladoId}`, formData)
+        .then(result => {
+            if (result.data.status) {
+ 
+              toast.info('Imagen Editada Correctamente', {
+                autoClose: 2000,
+                onClose: () => window.location.reload()
+              })           
+            } else {
+              console.log(result.data.Error)
+              
+            }
+        }).catch(err => console.log(err))
+
+  // try {
+  //   const response = await axios.put(`${process.env.NEXT_PUBLIC_URL}/actualizar_imagen/${datosTitulado.tituladoId}`, formData);
+  //   if (response.data.status) {
+  //     console.log('Imagen actualizada correctamente');
+  //     // Aquí puedes agregar lógica adicional después de actualizar la imagen, si es necesario
+  //   } else {
+  //     console.error('Error al actualizar la imagen');
+  //     // Manejar el error si la actualización no fue exitosa
+  //   }
+  // } catch (error) {
+  //   console.error('Error al enviar la solicitud:', error);
+  //   // Manejar cualquier error de red o del servidor
+  // }
+};
   
 
   return (
@@ -228,291 +295,316 @@ const actualizarInformacion = () => {
     
         <div 
       className='w-full h-screen object-cover flex'     
-      > <DashboardPerfil/>
-      <form 
-        className='bg-white w-full h-[200%] m-8 rounded-xl ml-96'
-      >
-          {alerta && 
-            <Stack sx={{ width: '100%' }} spacing={2}>
-              <Alert variant="filled" severity="error">
-                {alertaMensaje}
-              </Alert>
-            </Stack>
-          }       
-        <div className='m-5 w-[100%] flex justify-center'>
-       
-          <Image
-            src={`http://localhost:8000/imagenes/`+datosTitulado.imagen}
-            width={100}
-            height={100}
-            alt=''
-            className='rounded-full object-cover'
-          />
-         
-        </div>
-       
-       <label htmlFor="" className='text-white m-3'>Datos Básicos</label>
-        <div className='m-5 grid md:grid-cols-2 lg:grid-cols-3 gap-5 text-gray-800'>
-          <Input
-            crossOrigin="anonymous" 
-            label='Nombre(s)'
-            value={datosTitulado.nombre}
-            className='text-slate-400 placeholder:text-slate-500'
-            readOnly={true}
-          />
-           <Input
-            crossOrigin="anonymous" 
-            label='Apellido Paterno'
-            value={datosTitulado.apellidoPaterno}
-            className='text-slate-400'
-            readOnly={true}
-          />
-          <Input
-            crossOrigin="anonymous" 
-            label='Apellido Materno'
-            value={datosTitulado.apellidoMaterno}
-            className='text-slate-400'
-            readOnly={true}
-          />
-          <Input
-            crossOrigin="anonymous" 
-            label='Carnet de Identidad'
-            value={datosTitulado.ci}
-            className='text-slate-400'
-            readOnly={true}
-          />
-          <Input
-            crossOrigin="anonymous" 
-            label='Fecha de Nacimiento'
-            value={datosTitulado.fechaNacimiento}
-            className='text-slate-400'
-            readOnly={true}
-          />
-          <Input
-            crossOrigin="anonymous" 
-            label='Genero'
-            value={datosTitulado.sexo}
-            className='text-slate-400'
-            readOnly={true}
-          />
+      > 
+        <DashboardPerfil>
+          <form 
+          className='bg-white w-[90%] h-[450%] md:h-[220%] m-8 rounded-xl '
+        >
+            {alerta && 
+              <Stack sx={{ width: '100%' }} spacing={2}>
+                <Alert variant="filled" severity="error">
+                  {alertaMensaje}
+                </Alert>
+              </Stack>
+            }       
+          <div className='m-5 w-[100%] flex flex-col justify-center gap-2'>
         
-          <Input 
-            crossOrigin="anonymous" 
-            variant="standard" 
-            label="Email" 
-            type='email'
-            placeholder={datosTitulado.email}
-            onChange={(e) => setDatosTitulado({...datosTitulado, email: e.target.value})}
-            className='text-white placeholder:text-slate-500'
-          />
-          <Input
-            crossOrigin="anonymous" 
-            label='Dirección'
-            variant="standard" 
-            type='text'
-            placeholder={datosTitulado.direccion}
-            onChange={(e) => setDatosTitulado({...datosTitulado, direccion: e.target.value})}
-            className='text-white placeholder:text-slate-500'
-          />
-          <Input
-            crossOrigin="anonymous" 
-            label='Celular'
-            variant="standard" 
-            type='number'
-            placeholder={datosTitulado.celular}
-            onChange={(e) => setDatosTitulado({...datosTitulado, celular: e.target.value})}
-            className='text-white placeholder:text-slate-500'
-          />
-        </div>
-
-        <label htmlFor="" className='text-white m-3 mt-8'>Datos Titulado</label>
-        <div className='m-5 grid grid-cols-3 gap-4 mt-3'>
-          <Input
-            crossOrigin="anonymous" 
-            label='Año de Ingreso'
-            variant="standard" 
-            type='number'
-            placeholder={datosTitulado.aIngreso}
-            onChange={(e) => setDatosTitulado({...datosTitulado, aIngreso: e.target.value})}
-            className='text-white placeholder:text-slate-500'
-          />
-
-          <Input
-            crossOrigin="anonymous" 
-            label='Año de Egreso'
-            variant="standard" 
-            type='number'
-            placeholder={datosTitulado.aEgreso}
-            onChange={(e) => setDatosTitulado({...datosTitulado, aEgreso: e.target.value})}
-            className='text-white placeholder:text-slate-500'
-          />
-
-          <Input
-            crossOrigin="anonymous" 
-            label='Año de Titulación'
-            variant="standard" 
-            type='number'
-            placeholder={datosTitulado.aTitulacion}
-            onChange={(e) => setDatosTitulado({...datosTitulado, aTitulacion: e.target.value})}
-            className='text-white placeholder:text-slate-500'
-          />
-
-          <Input
-            crossOrigin="anonymous" 
-            label='Año de Experiencia Laboral'
-            variant="standard" 
-            type='number'
-            placeholder={datosTitulado.aExperienciaLaboral}
-            onChange={(e) => setDatosTitulado({...datosTitulado, aExperienciaLaboral: e.target.value})}
-            className='text-white placeholder:text-slate-500'
-          />
-          <Select
-              titulo='Grado Académico'
-              opciones={gradosAcademicos}
-              value={datosTitulado["gradoAcademicoId"] || ""}  
-              onChange={(e) => setDatosTitulado({...datosTitulado, gradoAcademicoId: e.target.value})}
-              name='gradoAcademicoId' 
-          />
-
-          <Select
-              titulo='Modalidad de Titulación'
-              opciones={modalidadesTitulacion}
-              value={datosTitulado["modalidadTitulacionId"] || ""}  
-              onChange={(e) => setDatosTitulado({...datosTitulado, modalidadTitulacionId: e.target.value})}
-              name='modalidadTitulacionId' 
-          />
-
-          <Select
-              titulo='Area de Trabajo'
-              opciones={areasTrabajo}
-              value={datosTitulado["areaTrabajoId"] || ""}  
-              onChange={(e) => setDatosTitulado({...datosTitulado, areaTrabajoId: e.target.value})}
-              name='areaTrabajoId' 
-          />
-          <Select
-              titulo='Forma de Trabajo'
-              opciones={formaTrabajo}
-              value={datosTitulado["formaTrabajoId"] || ""}  
-              onChange={(e) => setDatosTitulado({...datosTitulado, formaTrabajoId: e.target.value})}
-              name='formaTrabajoId' 
-          />
-
-        </div>
-
-        <Button 
-          placeholder
-          fullWidth className='bg-slate-900 hover:bg-slate-500 m-3 w-[90%]'
-          onClick={onClickEnviar}
-        >Actualizar Datos</Button>
-
-    <div className="flex flex-col m-5">
-      <div className='flex justify-between m-3'>
-        <div>
-        <Button placeholder color="blue" onClick={() => setAbrirModalEstudios(true)}>Añadir Estudio PostGrado</Button>
-          {abrirModalEstudios && 
-            <ModalAddEstudioPostGrado
-              setModalAdd={setAbrirModalEstudios}
-              id={datosTitulado.tituladoId}
+            <Image
+              src={`${process.env.NEXT_PUBLIC_URL}/imagenes/`+datosTitulado.imagen}
+              width={100}
+              height={100}
+              alt=''
+              className='rounded-full object-cover'
             />
-          }
-        </div>
-        <div>
-          <Button placeholder color="red" onClick={() => setAbrirModalActividad(true)}>Añadir Actividad Laboral</Button>
-            {abrirModalActividad &&
-              <ModalAddActividades
-              setModalAdd={setAbrirModalActividad}
-              id={datosTitulado.tituladoId}
-              />
-            }
-        </div>
+            <input
+               type="file"
+               accept='image/*' // Permite seleccionar archivos de imagen
+               name='imagen'
+               onChange={(e: any) => {
+                   const file = e.target.files[0];
+                   // Verificar si se seleccionó un archivo
+                   if (file) {
+                    setNuevaImagen({...nuevaImagen, imagen: file});
+                   } else {
+                     // Si no se seleccionó ningún archivo, establece la imagen en null o algún valor predeterminado
+                     setNuevaImagen({...nuevaImagen, imagen: null});
+                   }
+                 }}
+               className='p-1 px-2 appearance-none outline-none w-full text-gray-600'
+            />
+            <button className='p-2 bg-orange-600 hover:bg-orange-400 rounded-xl w-[50%]' onClick={handleSubmit}>Actualizar Imagen</button>
+          
+          </div>
         
+        <label htmlFor="" className='text-white m-3'>Datos Básicos</label>
+          <div className='m-5 grid md:grid-cols-1 lg:grid-cols-2 gap-5 text-gray-800'>
+            <Input
+              crossOrigin="anonymous" 
+              label='Nombre(s)'
+              value={datosTitulado.nombre}
+              className='text-slate-400 placeholder:text-slate-500'
+              readOnly={true}
+            />
+            <Input
+              crossOrigin="anonymous" 
+              label='Apellido Paterno'
+              value={datosTitulado.apellidoPaterno}
+              className='text-slate-400'
+              readOnly={true}
+            />
+            <Input
+              crossOrigin="anonymous" 
+              label='Apellido Materno'
+              value={datosTitulado.apellidoMaterno}
+              className='text-slate-400'
+              readOnly={true}
+            />
+            <Input
+              crossOrigin="anonymous" 
+              label='Carnet de Identidad'
+              value={datosTitulado.ci}
+              className='text-slate-400'
+              readOnly={true}
+            />
+            <Input
+              crossOrigin="anonymous" 
+              label='Fecha de Nacimiento'
+              value={datosTitulado.fechaNacimiento}
+              className='text-slate-400'
+              readOnly={true}
+            />
+            <Input
+              crossOrigin="anonymous" 
+              label='Genero'
+              value={datosTitulado.sexo}
+              className='text-slate-400'
+              readOnly={true}
+            />
+          
+            <Input 
+              crossOrigin="anonymous" 
+              variant="standard" 
+              label="Email" 
+              type='email'
+              placeholder={datosTitulado.email}
+              onChange={(e) => setDatosTitulado({...datosTitulado, email: e.target.value})}
+              className='text-white placeholder:text-slate-500'
+            />
+            <Input
+              crossOrigin="anonymous" 
+              label='Dirección'
+              variant="standard" 
+              type='text'
+              placeholder={datosTitulado.direccion}
+              onChange={(e) => setDatosTitulado({...datosTitulado, direccion: e.target.value})}
+              className='text-white placeholder:text-slate-500'
+            />
+            <Input
+              crossOrigin="anonymous" 
+              label='Celular'
+              variant="standard" 
+              type='number'
+              placeholder={datosTitulado.celular}
+              onChange={(e) => setDatosTitulado({...datosTitulado, celular: e.target.value})}
+              className='text-white placeholder:text-slate-500'
+            />
+          </div>
 
-      </div>
-     
+          <label htmlFor="" className='text-white m-3 mt-8'>Datos Titulado</label>
+          <div className='m-5 grid grid-cols-1 lg:grid-cols-2 gap-4 mt-3'>
+            <Input
+              crossOrigin="anonymous" 
+              label='Año de Ingreso'
+              variant="standard" 
+              type='number'
+              placeholder={datosTitulado.aIngreso}
+              onChange={(e) => setDatosTitulado({...datosTitulado, aIngreso: e.target.value})}
+              className='text-white placeholder:text-slate-500'
+            />
 
-      <div className='flex justify-between m-3'>
-        <div>
-          <Button placeholder className='bg-orange-600' onClick={() => setAbrirModalInvestigaciones(true)}>Añadir Investigacion</Button>
-            {abrirModalInvestigaciones &&
-              <ModalAddInvestigacion
-                setModalAdd={setAbrirModalInvestigaciones}
+            <Input
+              crossOrigin="anonymous" 
+              label='Año de Egreso'
+              variant="standard" 
+              type='number'
+              placeholder={datosTitulado.aEgreso}
+              onChange={(e) => setDatosTitulado({...datosTitulado, aEgreso: e.target.value})}
+              className='text-white placeholder:text-slate-500'
+            />
+
+            <Input
+              crossOrigin="anonymous" 
+              label='Año de Titulación'
+              variant="standard" 
+              type='number'
+              placeholder={datosTitulado.aTitulacion}
+              onChange={(e) => setDatosTitulado({...datosTitulado, aTitulacion: e.target.value})}
+              className='text-white placeholder:text-slate-500'
+            />
+
+            <Input
+              crossOrigin="anonymous" 
+              label='Año de Experiencia Laboral'
+              variant="standard" 
+              type='number'
+              placeholder={datosTitulado.aExperienciaLaboral}
+              onChange={(e) => setDatosTitulado({...datosTitulado, aExperienciaLaboral: e.target.value})}
+              className='text-white placeholder:text-slate-500'
+            />
+            <Select
+                titulo='Grado Académico'
+                opciones={gradosAcademicos}
+                value={datosTitulado["gradoAcademicoId"] || ""}  
+                onChange={(e) => setDatosTitulado({...datosTitulado, gradoAcademicoId: e.target.value})}
+                name='gradoAcademicoId' 
+            />
+
+            <Select
+                titulo='Modalidad de Titulación'
+                opciones={modalidadesTitulacion}
+                value={datosTitulado["modalidadTitulacionId"] || ""}  
+                onChange={(e) => setDatosTitulado({...datosTitulado, modalidadTitulacionId: e.target.value})}
+                name='modalidadTitulacionId' 
+            />
+
+            <Select
+                titulo='Area de Trabajo'
+                opciones={areasTrabajo}
+                value={datosTitulado["areaTrabajoId"] || ""}  
+                onChange={(e) => setDatosTitulado({...datosTitulado, areaTrabajoId: e.target.value})}
+                name='areaTrabajoId' 
+            />
+            <Select
+                titulo='Forma de Trabajo'
+                opciones={formaTrabajo}
+                value={datosTitulado["formaTrabajoId"] || ""}  
+                onChange={(e) => setDatosTitulado({...datosTitulado, formaTrabajoId: e.target.value})}
+                name='formaTrabajoId' 
+            />
+
+          </div>
+
+          <Button 
+            placeholder
+            fullWidth className='bg-slate-900 hover:bg-slate-500 m-3 w-[90%]'
+            onClick={onClickEnviar}
+          >Actualizar Datos</Button>
+
+      <div className="flex flex-col m-5">
+        <div className='flex flex-col md:flex-row justify-between m-3'>
+          <div>
+          <Button placeholder color="blue" onClick={() => setAbrirModalEstudios(true)}>Añadir Estudio PostGrado</Button>
+            {abrirModalEstudios && 
+              <ModalAddEstudioPostGrado
+                setModalAdd={setAbrirModalEstudios}
                 id={datosTitulado.tituladoId}
               />
             }
-        </div>
+          </div>
+          <div>
+            <Button placeholder color="red" onClick={() => setAbrirModalActividad(true)}>Añadir Actividad Laboral</Button>
+              {abrirModalActividad &&
+                <ModalAddActividades
+                setModalAdd={setAbrirModalActividad}
+                id={datosTitulado.tituladoId}
+                />
+              }
+          </div>
+          
 
-        <div>
-          <Button placeholder className='bg-green-600' onClick={() => setAbrirModalProduccion(true)}>Añadir Producción Intelectual</Button>
-          {abrirModalProduccion &&
-              <ModalProduccionIntelectualAdd
-              setModalAdd={setAbrirModalInvestigaciones}
-              id={datosTitulado.tituladoId}
-              />
-            }
+        </div>
+      
+
+        <div className='flex flex-col md:flex-row justify-between m-3'>
+          <div>
+            <Button placeholder className='bg-orange-600' onClick={() => setAbrirModalInvestigaciones(true)}>Añadir Investigacion</Button>
+              {abrirModalInvestigaciones &&
+                <ModalAddInvestigacion
+                  setModalAdd={setAbrirModalInvestigaciones}
+                  id={datosTitulado.tituladoId}
+                />
+              }
+          </div>
+
+          <div>
+            <Button placeholder className='bg-green-600' onClick={() => setAbrirModalProduccion(true)}>Añadir Producción Intelectual</Button>
+            {abrirModalProduccion &&
+                <ModalProduccionIntelectualAdd
+                setModalAdd={setAbrirModalProduccion}
+                id={datosTitulado.tituladoId}
+                />
+              }
+          </div>
+          
+
         </div>
         
-
+        
+        
       </div>
-      
-      
-      
-    </div>
-    <div className='flex flex-col gap-3'>
-                    <label htmlFor="" className='text-zinc-600 m-5'>Cambiar Contraseña</label>
-                    
-                        <Switch 
-                            color='blue'
-                            crossOrigin="anonymous" 
-                            checked={mostrarDatosUsuario} 
-                            onChange={handleSwitchChange}  
-                            className='ml-5 label:m-5'                              
-                            label="(Habilitar para editar el usuario)"
-                        />
+      <div className='flex flex-col gap-3'>
+                      <label htmlFor="" className='text-zinc-600 m-5'>Cambiar Contraseña</label>
+                      <div className='flex gap-8'>
+                      <Switch 
+                              color='blue'
+                              crossOrigin="anonymous" 
+                              checked={mostrarDatosUsuario} 
+                              onChange={handleSwitchChange}  
+                              className='ml-5 label:m-5'                              
+                              
+                          />
+                        <Typography placeholder className='text-bold'>(Para Editar la Contraseña)</Typography>
 
-                  {mostrarDatosUsuario && (
-                    <>
-                        {alerta && 
-                            <Stack sx={{ width: '100%' }} spacing={2} className='mb-3'>
-                                <Alert variant="filled" severity="error">
-                                    {alertaMensaje}
-                                </Alert>
-                            </Stack>
-                        }
-                        <div className='m-5 grid grid-cols-3 gap-4 mt-3'>                        
-                            <Input
-                                crossOrigin="anonymous" 
-                                label='Password'
-                                variant="standard" 
-                                onChange={e => setPassword({...password, password: e.target.value})}
-                                type='password'                         
-                                className=' placeholder:text-slate-500'
-                            />
-                            <Input
-                                crossOrigin="anonymous" 
-                                label='Repetir Password'
-                                variant="standard" 
-                                type='password'                         
-                                className=' placeholder:text-slate-500'
-                            />
-                        </div>
+                      </div>
+                          
 
-                        <Button 
-                            placeholder className=' bg-violet-950 hover:bg-violet-600 text-white m-1 rounded-xl'
-                            onClick={handlePassword}
-                        >
-                            Guardar Contraseña
-                        </Button>
-                    </>
-                    )}
-                    
-                    
-      </div>
+                    {mostrarDatosUsuario && (
+                      <>
+                          {alerta && 
+                              <Stack sx={{ width: '100%' }} spacing={2} className='mb-3'>
+                                  <Alert variant="filled" severity="error">
+                                      {alertaMensaje}
+                                  </Alert>
+                              </Stack>
+                          }
+                          <div className='m-5 flex flex-col md:flex-row gap-4 mt-3'>                        
+                              <Input
+                                  crossOrigin="anonymous" 
+                                  label='Password'
+                                  variant="standard" 
+                                  onChange={e => setPassword({...password, password: e.target.value})}
+                                  type='password'                         
+                                  className=' placeholder:text-slate-500'
+                              />
+                              <Input
+                                  crossOrigin="anonymous" 
+                                  label='Repetir Password'
+                                  variant="standard" 
+                                  onChange={e => setPassword({...password, repeatPassword: e.target.value})}
+                                  type='password'                         
+                                  className=' placeholder:text-slate-500'
+                              />
+                          </div>
 
-      </form>
+                          <Button 
+                              placeholder className=' bg-violet-950 hover:bg-violet-600 text-white m-1 rounded-xl'
+                              onClick={handlePassword}
+                          >
+                              Guardar Contraseña
+                          </Button>
+                      </>
+                      )}
+                      
+                      
+        </div>
+
+          </form>
+        </DashboardPerfil>
+      
       <ToastContainer/>
     </div>
   
   )
 }
 
-export default actualizarInformacion
+export default ActualizarInformacion

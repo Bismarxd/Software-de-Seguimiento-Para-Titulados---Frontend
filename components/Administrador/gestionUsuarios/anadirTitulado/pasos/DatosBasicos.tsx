@@ -32,7 +32,7 @@ const DatosBasicos = () => {
   const [alerta, setAlerta] = useState(false)
   const [alertaMensaje, setAlertaMensaje] = useState('')
 
-  const {datosUsuario, setDatosUsuario}: PropsContext = useContext(PasoContext)
+  const {datosUsuario, setDatosUsuario}: PropsContext = useContext<any>(PasoContext)
   
   const handleChange = (e: any) => {
     const {name, value} = e.target;
@@ -114,7 +114,7 @@ const DatosBasicos = () => {
                 onChange={handleChange}
                 value={datosUsuario["ci"] || ""}
                 name='ci'
-                type='number'
+                type='text'
                 
               />
             
